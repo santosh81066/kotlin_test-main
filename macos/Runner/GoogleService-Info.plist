@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>408590004796-050hfub1kl5gj6p99b6at1g0vpfr7irg.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCwcFAC4LHauQvAupXO-n_6EJYF4Onupfo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>408590004796</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.kotlinTest.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>vedicpurohit-d68c1</string>
+	<key>STORAGE_BUCKET</key>
+	<string>vedicpurohit-d68c1.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:408590004796:ios:49b7d66c3f71ad163f4939</string>
+	<key>DATABASE_URL</key>
+	<string>https://vedicpurohit-d68c1-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

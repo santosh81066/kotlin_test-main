@@ -1,0 +1,231 @@
+{
+  "project_info": {
+    "project_number": "408590004796",
+    "firebase_url": "https://vedicpurohit-d68c1-default-rtdb.firebaseio.com",
+    "project_id": "vedicpurohit-d68c1",
+    "storage_bucket": "vedicpurohit-d68c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408590004796:android:28c1e17c731df8603f4939",
+        "android_client_info": {
+          "package_name": "com.example.flutter_notiffications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkByrZazrbsGH8pBFDUpKovxO-HSy3sf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "408590004796-4v38mnqfhjk1b23ar6162jlb0abj15jd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.purohithulu.agents"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408590004796:android:a1c768b073322b903f4939",
+        "android_client_info": {
+          "package_name": "com.example.kotlin_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkByrZazrbsGH8pBFDUpKovxO-HSy3sf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "408590004796-4v38mnqfhjk1b23ar6162jlb0abj15jd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.purohithulu.agents"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408590004796:android:e4b5c471be99270e3f4939",
+        "android_client_info": {
+          "package_name": "com.purohith.users"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408590004796-050hfub1kl5gj6p99b6at1g0vpfr7irg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.purohith.users",
+            "certificate_hash": "ddde1a15b367025fe91f7715059b081ed1db565a"
+          }
+        },
+        {
+          "client_id": "408590004796-atm3om5r3b1p5b7iblbfgv18hhsvpug3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.purohith.users",
+            "certificate_hash": "1f17efcbaff9e25de3df3f8dcaef6d2da5680414"
+          }
+        },
+        {
+          "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkByrZazrbsGH8pBFDUpKovxO-HSy3sf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "408590004796-4v38mnqfhjk1b23ar6162jlb0abj15jd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.purohithulu.agents"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408590004796:android:8f9f87e5a8c626bb3f4939",
+        "android_client_info": {
+          "package_name": "com.purohithulu.agents"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408590004796-oqnisr4uvm7a5rtffeudh3q1anajd9o3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.purohithulu.agents",
+            "certificate_hash": "1f17efcbaff9e25de3df3f8dcaef6d2da5680414"
+          }
+        },
+        {
+          "client_id": "408590004796-ti8utndvb3nt2ijneogbtuh8spjpmv70.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.purohithulu.agents",
+            "certificate_hash": "c08eb42354f0a86c6dc66e7065b1ef91ec6b60f1"
+          }
+        },
+        {
+          "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkByrZazrbsGH8pBFDUpKovxO-HSy3sf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "408590004796-4v38mnqfhjk1b23ar6162jlb0abj15jd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.purohithulu.agents"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408590004796:android:466dc7d3453209643f4939",
+        "android_client_info": {
+          "package_name": "com.purohithulu.users"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408590004796-sikfl15qs0eu2f8mj0278b7kfji9end8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.purohithulu.users",
+            "certificate_hash": "1f17efcbaff9e25de3df3f8dcaef6d2da5680414"
+          }
+        },
+        {
+          "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkByrZazrbsGH8pBFDUpKovxO-HSy3sf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "408590004796-4v38mnqfhjk1b23ar6162jlb0abj15jd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.purohithulu.agents"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
