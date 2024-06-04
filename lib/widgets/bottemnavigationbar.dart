@@ -56,7 +56,7 @@ class BottemNavigationBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Stack(
             children: [
-              const Icon(Icons.scatter_plot),
+              const Icon(Icons.file_download),
               Positioned.fill(
                 child: Align(
                   alignment: Alignment.center,
@@ -69,7 +69,7 @@ class BottemNavigationBar extends StatelessWidget {
               ),
             ],
           ),
-          label: 'Horoscope',
+          label: 'Your Files',
         ),
         // BottomNavigationBarItem(
         //   icon: Stack(
@@ -105,7 +105,7 @@ class BottemNavigationBar extends StatelessWidget {
               ),
             ],
           ),
-          label: 'acount',
+          label: 'Acount',
         ),
       ],
       selectedItemColor: Colors.black,

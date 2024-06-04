@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-
+import 'package:purohithulu/view/account.dart';
 
 import '../providers/bottomnavigationnotifier.dart';
 import '../providers/carouselstatenotifier.dart';
@@ -90,12 +89,31 @@ class _WellcomeScreenState extends ConsumerState<WellcomeScreen> {
     super.dispose();
   }
 
+  void _updateAppBarTitle(int index) {
+    switch (index) {
+      case 0:
+        appBarTitle.value = 'Home';
+        break;
+      case 1:
+        appBarTitle.value = 'Your Booking History';
+        break;
+      case 2:
+        appBarTitle.value = 'Your Files';
+        break;
+      case 3:
+        appBarTitle.value = 'Account';
+
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Builder(
-        key: _authDetailsKey,
-        builder: (context) {
-          return WillPopScope(onWillPop: () async {
+      key: _authDetailsKey,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async {
             final now = DateTime.now();
             final allowExit = lastPressedTime == null ||
                 now.difference(lastPressedTime!) > const Duration(seconds: 2);
@@ -112,17 +130,20 @@ class _WellcomeScreenState extends ConsumerState<WellcomeScreen> {
             } else {
               return true;
             }
-          }, child: Consumer(
+          },
+          child: Consumer(
             builder: (context, ref, child) {
               final state = ref.watch(bottemNavigationProvider);
-              final title = state.appBarTitle;
+              final title = appBarTitle.value;
+
+              print(title);
               return Scaffold(
                 appBar: purohithAppBar(context, title),
-                drawer: const AppDrawer(),
                 body: PageView(
                   controller: _pageController,
                   onPageChanged: (index) {
                     ref.read(bottemNavigationProvider.notifier).update(index);
+                    _updateAppBarTitle(index);
                   },
                   children: [
                     Consumer(
@@ -132,44 +153,42 @@ class _WellcomeScreenState extends ConsumerState<WellcomeScreen> {
                         final categories = ref.watch(categoryProvider);
                         final categoriesWithParentId = categories.categories;
                         // Filtering categories with parentid as null
-                        
+
                         var categoriesWithParentIdNull = categories.categories
                             .where(
                               (calling) => calling.parentid == null,
                             )
                             .toList();
 
-                        // Checking for carousel data
-                        // final carouselDataExists =
-                        //     categoryState.carousel?.data != null;
-
-                        return  Categories(
-                                call: categoriesWithParentId,
-                                images:categoryState.carousel==null?[]: categoryState.carousel!.data!,
-                              );
+                        return Categories(
+                          call: categoriesWithParentId,
+                          images: categoryState.carousel == null
+                              ? []
+                              : categoryState.carousel!.data!,
+                        );
                       },
                     ),
                     BookingsScreen(
                         onTitleChanged: (title) => appBarTitle.value = title),
                     HoroscopeList(
                         onTitleChanged: (title) => appBarTitle.value = title),
+                    MyAccount()
                   ],
                 ),
                 bottomNavigationBar: BottemNavigationBar(
                   selectedIndex: state.selectedIndex,
                   onPageChanged: (index) {
+                    print('pageindex:$index');
                     _pageController.jumpToPage(index);
-                    appBarTitle.value = index == 0
-                        ? 'Home'
-                        : index == 1
-                            ? 'Your Booking History'
-                            : 'Horoscope';
+                    _updateAppBarTitle(index);
                   },
                   title: appBarTitle.value,
                 ),
               );
             },
-          ));
-        });
+          ),
+        );
+      },
+    );
   }
 }

@@ -79,37 +79,35 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-   
+
     _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
       setState(() {
         _isOffline = result == ConnectivityResult.none;
       });
     });
-
+    _checkForUpdates();
     // Delay permission request to ensure the app is fully initialized
-    Future.delayed(Duration(milliseconds: 500), () {
-      _requestSmsPermissions();
-    });
+    // Future.delayed(Duration(milliseconds: 500), () {
+    //    _checkForUpdates();
+    //   _requestSmsPermissions();
+    // });
   }
 
   Future<void> _requestSmsPermissions() async {
     PermissionStatus status = await Permission.sms.status;
     if (status.isGranted) {
       // Permission is granted, proceed with functionality
-      _checkForUpdates();
+
       print('granted');
     } else if (status.isDenied) {
       print('denied');
       Permission.sms.request();
       // Permission is denied, request it
-    
     } else if (status.isPermanentlyDenied) {
       // Permission is permanently denied, open app settings
-      
     }
   }
 
- 
   Future<void> _checkForUpdates() async {
     try {
       final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
@@ -117,7 +115,8 @@ class _MyAppState extends State<MyApp> {
         _updateInfo = updateInfo;
       });
 
-      if (_updateInfo!.updateAvailability == UpdateAvailability.updateAvailable) {
+      if (_updateInfo!.updateAvailability ==
+          UpdateAvailability.updateAvailable) {
         InAppUpdate.performImmediateUpdate();
       }
     } catch (e) {

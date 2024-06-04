@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import '../models/categories.dart';
 import '../utils/purohitapi.dart';
 
@@ -22,6 +21,7 @@ class CategoryGrid extends StatelessWidget {
       shrinkWrap: true,
       itemCount: subcat.length,
       itemBuilder: (con, index) {
+        print('sub cat price:${subcat[index].price}');
         return GestureDetector(
           onTap: () {
             Navigator.pushNamed(context, "subcatscreen", arguments: {
@@ -55,13 +55,15 @@ class CategoryGrid extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                subcat[index].price !=null?Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                   "Amount: ${subcat[index].price!} ",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ):Container()
+                subcat[index].price != null
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Amount: ${subcat[index].price!} ",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : Container()
               ],
             ),
           ),

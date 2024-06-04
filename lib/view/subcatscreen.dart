@@ -2,7 +2,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 import '../controller/flutter_functions.dart';
 import '../models/booking.dart';
 import '../models/purohithusers.dart';
@@ -31,7 +30,6 @@ class _SubCatState extends ConsumerState<SubCat> {
   String bookButtonLabel = 'View details';
   String addressHintText = 'Please enter address';
   String? selectedLocation;
-  
 
   @override
   Widget build(BuildContext context) {
@@ -44,78 +42,81 @@ class _SubCatState extends ConsumerState<SubCat> {
       appBar: purohithAppBar(context, 'Book ${productDetails['title']}'),
       body: Consumer(
         builder: (context, ref, child) {
-        var bookingProvider = ref.read(bookingDataProvider.notifier);
+          var bookingProvider = ref.read(bookingDataProvider.notifier);
           var isLoading = ref.read(loadingProvider);
-           var dateAndTimeNotifier = ref.watch(dateAndTimeProvider.notifier);
+          var dateAndTimeNotifier = ref.watch(dateAndTimeProvider.notifier);
           return Center(
-            child: Card(child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextWidget(
-                  controller: address,
-                  hintText: addressHintText,
-                  keyBoardType: TextInputType.multiline,
-                            ),
-                ),
-                          Row(
-            children: [
-              Consumer(
-                builder: (context, ref, child) {
-                  final dateAndTime = ref.watch(dateAndTimeProvider);
-                  return GestureDetector(
-                    onTap: () async {
-                      dateAndTimeNotifier.pickDate(context).then(
-                          (value) => dateAndTimeNotifier.selectTime(context));
-                      print('date:${ref.watch(dateAndTimeProvider).date}');
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Text(
-                        ref.watch(dateAndTimeProvider).date == null
-                            ? 'Pick your date and time'
-                            : 'Date: ${dateAndTime.date}\nTime: ${dateAndTime.time}',
-                        textAlign: TextAlign.center,
-                      ),
+            child: Card(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextWidget(
+                      controller: address,
+                      hintText: addressHintText,
+                      keyBoardType: TextInputType.multiline,
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
-                          Button(
-                      buttonname: "Book ${productDetails['title']}",
-                      onTap: isLoading
-                          ? null
-                          : () async {
-                              String addressText = address.text;
-                              BookingData newBooking = BookingData(
-                                // Set properties for the new booking
-                                amount:productDetails['price'],
-
-                                time:
-                                    '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
-                                address: addressText.trim(),
-                                bookingStatus: 'w',
-                                // ... other properties ...
-                              );
-                              await bookingProvider.sendBooking(
-                                  ctypeId: productDetails['id'],
-                                  
-                                  otp: true,
-                                  context: context,
-                                  bookings: newBooking,
-                                  ref: ref);
-
-                              print('address:$addressText'); // Close the dialog
+                  ),
+                  Row(
+                    children: [
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final dateAndTime = ref.watch(dateAndTimeProvider);
+                          return GestureDetector(
+                            onTap: () async {
+                              dateAndTimeNotifier.pickDate(context).then(
+                                  (value) =>
+                                      dateAndTimeNotifier.selectTime(context));
+                              print(
+                                  'date:${ref.watch(dateAndTimeProvider).date}');
                             },
-                    ),
-              ],
-            ),),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                ref.watch(dateAndTimeProvider).date == null
+                                    ? 'Pick your date and time'
+                                    : 'Date: ${dateAndTime.date}\nTime: ${dateAndTime.time}',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  Button(
+                    buttonname: "Book ${productDetails['title']}",
+                    onTap: isLoading
+                        ? null
+                        : () async {
+                            String addressText = address.text;
+                            BookingData newBooking = BookingData(
+                              // Set properties for the new booking
+                              amount: productDetails['price'],
+
+                              time:
+                                  '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
+                              address: addressText.trim(),
+                              bookingStatus: 'w',
+                              // ... other properties ...
+                            );
+                            await bookingProvider.sendBooking(
+                                ctypeId: productDetails['id'],
+                                otp: true,
+                                context: context,
+                                bookings: newBooking,
+                                ref: ref);
+
+                            print('address:$addressText'); // Close the dialog
+                          },
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
@@ -251,7 +252,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                       "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
                   'amount': '₹ ${user.getAmountWithPercentageIncrease()}',
                   'cattype': cattype,
-                  'userName':user.username
+                  'userName': user.username
                 });
               }),
         ),
@@ -274,7 +275,6 @@ class _SubCatState extends ConsumerState<SubCat> {
             hintText: addressHintText,
             keyBoardType: TextInputType.multiline,
           ),
-         
           content: Row(
             children: [
               Expanded(
