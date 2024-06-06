@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/authnotifier.dart';
+import '../providers/userprofiledatanotifier.dart';
 import '/models/categories.dart';
 import '/models/purohithusers.dart' as purohith;
 import '/providers/carouselstatenotifier.dart';
@@ -127,7 +129,7 @@ class Categories extends ConsumerWidget {
                 Column(
                   children: [
                     SizedBox(
-                      height: 150,
+                      height: 200,
                       child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           shrinkWrap: true,
@@ -223,7 +225,7 @@ class Categories extends ConsumerWidget {
                     return Column(
                       children: [
                         SizedBox(
-                          height: 200,
+                          height: 250,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
@@ -320,6 +322,25 @@ class Categories extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Consumer(builder: (context, ref, child) {
+               final authNotifier = ref.watch(authProvider);
+              return CircleAvatar(
+                                radius: 30,
+                                backgroundImage:
+                                    user.profilepic != null
+                                        ? NetworkImage(
+                                            "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
+                                            headers: {
+                                              "Authorization":
+                                                  authNotifier.accessToken!
+                                            },
+                                          )
+                                        : const AssetImage('assets/icon.png')
+                                            as ImageProvider<Object>,
+                                // Optionally, you can add a radius or other styling properties here
+                              );
+            }, ),
+           
             Text(
               user.username ?? "",
               style: TextStyle(fontWeight: FontWeight.w500),

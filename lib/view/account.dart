@@ -106,7 +106,10 @@ class _MyAccountState extends State<MyAccount> {
                   side: const BorderSide(color: Colors.black, width: 1),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: const ListTile(
+                child:  ListTile(
+                    onTap: () {
+                    Navigator.pushNamed(context, "wallet");
+                  },
                   leading:
                       Icon(Icons.person_outlined, color: Color(0xFFF5C662)),
                   title: Padding(

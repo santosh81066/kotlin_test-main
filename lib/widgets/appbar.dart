@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
-AppBar purohithAppBar(BuildContext context, String title) {
+AppBar purohithAppBar(BuildContext context, String title,{bool? backButton}) {
   final fbuser = FirebaseAuth.instance.currentUser;
   final uid = fbuser?.uid;
   final DatabaseReference firebaseRealtimeWalletRef =
@@ -10,6 +10,7 @@ AppBar purohithAppBar(BuildContext context, String title) {
   // walletProvider.assignWalletBalance();
   return AppBar(
     backgroundColor: Colors.white,
+    automaticallyImplyLeading: backButton ==null?true:false,
     title: Text(title),
     actions: [
       title == 'Book Purohith'

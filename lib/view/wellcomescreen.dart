@@ -138,7 +138,7 @@ class _WellcomeScreenState extends ConsumerState<WellcomeScreen> {
 
               print(title);
               return Scaffold(
-                appBar: purohithAppBar(context, title),
+                appBar: purohithAppBar(context, title,backButton: false),
                 body: PageView(
                   controller: _pageController,
                   onPageChanged: (index) {

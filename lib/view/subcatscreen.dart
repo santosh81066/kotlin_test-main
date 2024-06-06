@@ -48,6 +48,8 @@ class _SubCatState extends ConsumerState<SubCat> {
           return Center(
             child: Card(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),

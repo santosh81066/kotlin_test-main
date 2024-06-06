@@ -91,7 +91,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                         borderRadius: BorderRadius.circular(8)),
                                   ),
                                    Text(
-                                    '${arguments['userName']}',
+                                    user.username!,
                                     style: TextStyle(
                                         fontSize: 19,
                                         fontWeight: FontWeight.w600),

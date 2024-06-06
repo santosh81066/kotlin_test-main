@@ -147,10 +147,10 @@ class _WalletState extends State<Wallet> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageIcon(
-                                AssetImage('assets/rupee.png'),
-                                size: 30,
-                              ),
+                            Icon(
+  Icons.currency_rupee, // Use currency_rupee from icons class
+  size: 30,
+),
                               SizedBox(height: 8),
                               Text(
                                 "100",
@@ -176,10 +176,10 @@ class _WalletState extends State<Wallet> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageIcon(
-                                AssetImage('assets/rupee.png'),
-                                size: 30,
-                              ),
+                             Icon(
+  Icons.currency_rupee, // Use currency_rupee from icons class
+  size: 30,
+),
                               SizedBox(height: 8),
                               Text(
                                 "200",
@@ -205,10 +205,10 @@ class _WalletState extends State<Wallet> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageIcon(
-                                AssetImage('assets/rupee.png'),
-                                size: 30,
-                              ),
+                             Icon(
+  Icons.currency_rupee, // Use currency_rupee from icons class
+  size: 30,
+),
                               SizedBox(height: 8),
                               Text(
                                 "300",
@@ -234,10 +234,10 @@ class _WalletState extends State<Wallet> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageIcon(
-                                AssetImage('assets/rupee.png'),
-                                size: 30,
-                              ),
+                              Icon(
+  Icons.currency_rupee, // Use currency_rupee from icons class
+  size: 30,
+),
                               SizedBox(height: 8),
                               Text(
                                 "400",
@@ -263,10 +263,10 @@ class _WalletState extends State<Wallet> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageIcon(
-                                AssetImage('assets/rupee.png'),
-                                size: 30,
-                              ),
+                             Icon(
+  Icons.currency_rupee, // Use currency_rupee from icons class
+  size: 30,
+),
                               SizedBox(height: 8),
                               Text(
                                 "500",
@@ -292,10 +292,10 @@ class _WalletState extends State<Wallet> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ImageIcon(
-                                AssetImage('assets/rupee.png'),
-                                size: 30,
-                              ),
+                              Icon(
+  Icons.currency_rupee, // Use currency_rupee from icons class
+  size: 30,
+),
                               SizedBox(height: 8),
                               Text(
                                 "1000",
