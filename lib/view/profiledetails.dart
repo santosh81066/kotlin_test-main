@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,7 @@ import '../widgets/appbar.dart';
 import '../widgets/button.dart';
 import '../widgets/customdialogbox.dart';
 import '../widgets/rowItems.dart';
+
 class ProfileDetails extends ConsumerStatefulWidget {
   const ProfileDetails({super.key});
 
@@ -19,14 +21,12 @@ class ProfileDetails extends ConsumerStatefulWidget {
 }
 
 class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
-  void handleCallTap(BuildContext context, Data user,
-       String productId) {
-    
-      initiateCall(context, ref, user, productId);
-   
+  void handleCallTap(BuildContext context, Data user, String productId) {
+    initiateCall(context, ref, user, productId);
   }
-  void initiateCall(BuildContext context, WidgetRef ref, Data user,
-      String productId) {
+
+  void initiateCall(
+      BuildContext context, WidgetRef ref, Data user, String productId) {
     ref.read(zegeoCloudNotifierProvider.notifier).setPurohithDetails(
         user.amount?.toDouble() ?? 0.0, int.parse(productId), user.id!);
     var invites = ref
@@ -35,29 +35,38 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
         .map((u) {
       return ZegoCallUser(u.id, user.username!);
     }).toList();
-    ZegoUIKitPrebuiltCallInvitationService().send(resourceID:"purohithulu",invitees: invites, isVideoCall: false,customData: json.encode({
-            "amount": user.amount ?? 0.0,
-            "userid": ref.read(userProfileDataProvider).data![0].id,
-            "catid": productId
-          }),notificationTitle: "purohithulu",notificationMessage: "You got an incomming call");
+    ZegoUIKitPrebuiltCallInvitationService().send(
+        resourceID: "purohithulu",
+        invitees: invites,
+        isVideoCall: false,
+        customData: json.encode({
+          "amount": user.amount ?? 0.0,
+          "userid": ref.read(userProfileDataProvider).data![0].id,
+          "catid": productId
+        }),
+        notificationTitle: "purohithulu",
+        notificationMessage: "You got an incomming call");
     // ref.read(zegeoCloudNotifierProvider).zegoController.sendCallInvitation(
     //       notificationTitle: "catname",
     //       invitees: invites,
-          // customData: json.encode({
-          //   "amount": user.amount ?? 0.0,
-          //   "userid": ref.read(userProfileDataProvider).data![0].id,
-          //   "catid": productId
-          // }),
+    // customData: json.encode({
+    //   "amount": user.amount ?? 0.0,
+    //   "userid": ref.read(userProfileDataProvider).data![0].id,
+    //   "catid": productId
+    // }),
     //       isVideoCall: false,
     //     );
   }
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     var arguments = ModalRoute.of(context)!.settings.arguments as Map;
     print('profile details:${arguments['cattype']}');
     final user = arguments['user'] as Data;
-  final productId = arguments['productId'] as String;
+    final productId = arguments['productId'] as String;
+    final DatabaseReference firebaseRealtimeUsersRef =
+        FirebaseDatabase.instance.ref().child('presence');
     //  final handleCallTap = arguments['handleCallTap'] as Function;
     return Scaffold(
         appBar: purohithAppBar(context, 'Purohith Profile'),
@@ -90,7 +99,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                         ),
                                         borderRadius: BorderRadius.circular(8)),
                                   ),
-                                   Text(
+                                  Text(
                                     user.username!,
                                     style: TextStyle(
                                         fontSize: 19,
@@ -201,12 +210,51 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                   ),
                                 ),
                                 arguments['cattype'] == 'c'
-                                    ? Button(
-                                        buttonname: "Call Purohith",
-                                        width: double.infinity,
-                                        onTap: () {
-                                          handleCallTap(context,user,productId);
-                                        })
+                                    ? StreamBuilder(
+                                        stream:
+                                            firebaseRealtimeUsersRef.onValue,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const CircularProgressIndicator();
+                                          }
+                                          Map<dynamic, dynamic>? foundValue;
+                                          Map<dynamic, dynamic> fbValues =
+                                              snapshot.data!.snapshot.value
+                                                  as Map<dynamic, dynamic>;
+                                          for (var value in fbValues.values) {
+                                            if (value['id'] == user.id) {
+                                              foundValue = value
+                                                  as Map<dynamic, dynamic>;
+                                              break;
+                                            }
+                                          }
+                                          if (foundValue == null) {
+                                            return const SizedBox.shrink();
+                                          }
+                                          bool isOnline =
+                                              foundValue['isonline'] ?? false;
+                                          bool incall =
+                                              foundValue['inCall'] ?? false;
+                                          if (!isOnline) {
+                                            return const ElevatedButton(
+                                                onPressed: null,
+                                                child: Text('Offline'));
+                                          }
+                                          if (incall) {
+                                            return const ElevatedButton(
+                                                onPressed: null,
+                                                child: Text('In Call'));
+                                          }
+                                          return Button(
+                                              buttonname: "Call Purohith",
+                                              width: double.infinity,
+                                              onTap: () {
+                                                handleCallTap(
+                                                    context, user, productId);
+                                              });
+                                        },
+                                      )
                                     : Button(
                                         buttonname: "Book Purohith",
                                         width: double.infinity,

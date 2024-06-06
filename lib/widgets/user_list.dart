@@ -214,10 +214,13 @@ class UserList extends ConsumerWidget {
               buttonBottomMargin: 7,
               buttonname: 'View Details ',
               onTap: () {
-                Navigator.of(context).pushNamed('profileDetails',
-                    arguments: {'url': url, 'amount': amt, 'cattype': cattype,'user': user,
-                'productId': productId,});
-              
+                Navigator.of(context).pushNamed('profileDetails', arguments: {
+                  'url': url,
+                  'amount': amt,
+                  'cattype': cattype,
+                  'user': user,
+                  'productId': productId,
+                });
               }),
         );
       },
