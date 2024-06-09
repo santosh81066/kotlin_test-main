@@ -139,29 +139,29 @@ class _SubCatState extends ConsumerState<SubCat> {
     }).toList();
   }
 
-  Widget _buildLocationFilterDropdown(WidgetRef ref) {
-    var locationState = ref.watch(locationProvider);
-    var locationNotifier = ref.watch(locationProvider.notifier);
-    return DropdownButton<String>(
-      elevation: 16,
-      isExpanded: true,
-      hint: const Text('Filter purohith based on location'),
-      items: locationState.data.map((v) {
-            return DropdownMenuItem<String>(
-              value: v.location,
-              child: Text(v.location),
-            );
-          }).toList() ??
-          [],
-      onChanged: (val) {
-        if (val != null) {
-          print('location changed:$val');
-          locationNotifier.setFilterLocation(val);
-        }
-      },
-      value: locationNotifier.getFilterLocation(),
-    );
-  }
+  // Widget _buildLocationFilterDropdown(WidgetRef ref) {
+  //   var locationState = ref.watch(locationProvider);
+  //   var locationNotifier = ref.watch(locationProvider.notifier);
+  //   return DropdownButton<String>(
+  //     elevation: 16,
+  //     isExpanded: true,
+  //     hint: const Text('Filter purohith based on location'),
+  //     items: locationState.data.map((v) {
+  //           return DropdownMenuItem<String>(
+  //             value: v.location,
+  //             child: Text(v.location),
+  //           );
+  //         }).toList() ??
+  //         [],
+  //     onChanged: (val) {
+  //       if (val != null) {
+  //         print('location changed:$val');
+  //         locationNotifier.setFilterLocation(val);
+  //       }
+  //     },
+  //     value: locationNotifier.getFilterLocation(),
+  //   );
+  // }
 
   Widget _buildUsersListView(
       DatabaseReference firebaseRealtimeUsersRef,

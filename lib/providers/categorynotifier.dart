@@ -21,7 +21,6 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
   get http => null;
 
   Future<void> getCategories() async {
-    
     final prefs = await SharedPreferences.getInstance();
     final url = PurohitApi().baseUrl +
         PurohitApi().getcategory; // Replace with your actual URL
@@ -33,7 +32,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       List<Data> newCategories = savedCategories
           .map((e) => Data.fromJson(e as Map<String, dynamic>))
           .toList();
-      
+
       state = state.copyWith(categories: newCategories);
       updateCategoryImages();
       return;
@@ -64,13 +63,13 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
           'Authorization': token!,
         },
       );
- print('${response.body}');
+      print('${response.body}');
       if (response.statusCode == 200) {
         Map<String, dynamic> categoryTypes = json.decode(response.body);
         // print('all categories: ${categoryTypes['data']['price']}');
         await prefs.setString(
             'categoryData', json.encode(categoryTypes['data']));
-     
+
         if (categoryTypes['data'] != null) {
           List<Data> newCategories = (categoryTypes['data'] as List)
               .map((e) => Data.fromJson(e as Map<String, dynamic>))
@@ -93,7 +92,6 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       XFile? categoryImage =
           await getCategoryImage(category.id!, authNotifier.state.accessToken!);
       updatedCategories.add(category.copyWith(xfile: categoryImage));
-     
     }
     state = state.copyWith(categories: updatedCategories);
   }
@@ -147,6 +145,12 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         return XFile('path_to_placeholder_image'); // Placeholder image path
       }
     }
+  }
+
+  List<Data> getFilteredCategories(String filter) {
+    return state.categories.where((category) {
+      return category.cattype != filter;
+    }).toList();
   }
 }
 

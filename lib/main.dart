@@ -252,9 +252,9 @@ class _MyAppState extends State<MyApp> {
                 'events': (context) {
                   return Events();
                 },
-                // 'register': (context) {
-                //   return Register(scaffoldMessengerKey: scaffoldMessengerKey);
-                // },
+                'register': (context) {
+                  return Register(scaffoldMessengerKey: scaffoldMessengerKey);
+                },
                 'eventForm': (context) {
                   return const EventForm();
                 },

@@ -1,18 +1,18 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/retry.dart';
-
+import 'package:http/http.dart' as http;
 import '../models/location.dart';
 import '../utils/purohitapi.dart';
 import 'authnotifier.dart';
 
-
 class LocationStateNotifier extends StateNotifier<Location> {
   final AuthNotifier authNotifier;
   String? currentFilterLocation;
-  LocationStateNotifier(this.authNotifier)
-      : super(Location.initial()); // Define an initial state
+  int? locationId;
+
+  LocationStateNotifier(this.authNotifier) : super(Location.initial());
 
   Future<void> getLocation() async {
     final url = '${PurohitApi().baseUrl}${PurohitApi().location}';
@@ -26,8 +26,6 @@ class LocationStateNotifier extends StateNotifier<Location> {
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
           var accessToken = await authNotifier.restoreAccessToken();
-          // Only this block can run (once) until done
-
           req.headers['Authorization'] = accessToken;
         }
       },
@@ -35,20 +33,22 @@ class LocationStateNotifier extends StateNotifier<Location> {
     var response = await client.get(
       Uri.parse(url),
     );
-    print('location response $response');
     Map<String, dynamic> locationBody = json.decode(response.body);
     state = Location.fromJson(locationBody);
   }
 
-  void setFilterLocation(String filterLocation) {
+  void setFilterLocation(String filterLocation, int id) {
     currentFilterLocation = filterLocation;
+    locationId = id;
     state = state.copyWith(data: state.data);
-    // Apply the filter to the data if needed
   }
 
   String? getFilterLocation() {
-    print('get filter location:$currentFilterLocation');
     return currentFilterLocation;
+  }
+
+  int? getLocationId() {
+    return locationId;
   }
 }
 
