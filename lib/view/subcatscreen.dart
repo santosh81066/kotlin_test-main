@@ -7,6 +7,7 @@ import '../models/booking.dart';
 import '../models/purohithusers.dart';
 import '../providers/authnotifier.dart';
 import '../providers/bookingnotifier.dart';
+import '../providers/categorynotifier.dart';
 import '../providers/datetimeprovider.dart';
 import '../providers/loader.dart';
 import '../providers/locationstatenotifier.dart';
@@ -34,6 +35,7 @@ class _SubCatState extends ConsumerState<SubCat> {
   @override
   Widget build(BuildContext context) {
     final productDetails = ModalRoute.of(context)!.settings.arguments as Map;
+
     // final dateAndTimeProvider = Provider.of<FlutterFunctions>(context);
     final DatabaseReference firebaseRealtimeUsersRef =
         FirebaseDatabase.instance.ref().child('presence');
@@ -41,10 +43,11 @@ class _SubCatState extends ConsumerState<SubCat> {
     return Scaffold(
       appBar: purohithAppBar(context, 'Book ${productDetails['title']}'),
       body: Consumer(
-        builder: (context, ref, child) {
-          var bookingProvider = ref.read(bookingDataProvider.notifier);
-          var isLoading = ref.read(loadingProvider);
-          var dateAndTimeNotifier = ref.watch(dateAndTimeProvider.notifier);
+        builder: (context, sub, child) {
+          var bookingProvider = sub.read(bookingDataProvider.notifier);
+          var isLoading = sub.read(loadingProvider);
+          var dateAndTimeNotifier = sub.watch(dateAndTimeProvider.notifier);
+
           return Center(
             child: Card(
               child: Column(
@@ -60,6 +63,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                     ),
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Consumer(
                         builder: (context, ref, child) {
@@ -80,7 +84,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                               ),
                               child: Text(
                                 ref.watch(dateAndTimeProvider).date == null
-                                    ? 'Pick your date and time'
+                                    ? 'Pooja date and time'
                                     : 'Date: ${dateAndTime.date}\nTime: ${dateAndTime.time}',
                                 textAlign: TextAlign.center,
                               ),
@@ -98,7 +102,6 @@ class _SubCatState extends ConsumerState<SubCat> {
                             String addressText = address.text;
                             BookingData newBooking = BookingData(
                               // Set properties for the new booking
-                              amount: productDetails['price'],
 
                               time:
                                   '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
@@ -107,7 +110,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                               // ... other properties ...
                             );
                             await bookingProvider.sendBooking(
-                                ctypeId: productDetails['id'],
+                                ctypeId: productDetails['id'].toString(),
                                 otp: true,
                                 context: context,
                                 bookings: newBooking,

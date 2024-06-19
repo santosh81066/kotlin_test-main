@@ -26,9 +26,10 @@ class PurohithNotifier extends StateNotifier<PurohitUsers> {
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken = await authNotifier.restoreAccessToken(call: "get purohith");
+          var accessToken =
+              await authNotifier.restoreAccessToken(call: "get purohith");
           // Only this block can run (once) until done
-          
+
           req.headers['Authorization'] = accessToken;
         }
       },
@@ -41,7 +42,7 @@ class PurohithNotifier extends StateNotifier<PurohitUsers> {
       },
     );
     Map<String, dynamic> purohithUserResponse = json.decode(response.body);
-   
+    print('purohith response :$purohithUserResponse');
     state = PurohitUsers.fromJson(purohithUserResponse);
   }
 }

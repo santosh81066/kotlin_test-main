@@ -9,7 +9,6 @@ import 'package:http/retry.dart';
 
 import 'package:http/http.dart' as http;
 
-
 import '../models/booking.dart';
 import '../utils/purohitapi.dart';
 import 'authnotifier.dart';
@@ -115,6 +114,28 @@ class BookingNotifier extends StateNotifier<Bookings> {
             for (String key in bookings.keys) {
               if (bookings[key]['id'] == bookingId) {
                 bookingRef.child(key).remove();
+                Future.delayed(Duration.zero).then(
+                  (value) {
+                    return showDialog(
+                      context: cont,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Delete Booking'),
+                          content: const Text(
+                              'Booking has been deleted successfully'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
                 break;
               }
             }
@@ -148,7 +169,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
     final url =
         '${PurohitApi().baseUrl}${PurohitApi().catId}${ctypeId.toString()}';
     final token = authNotifier.state.accessToken;
-    print('booking url : $url,body:${bookings!.toJson()}');
+    print('booking url : $url,body:${bookings.toJson()}');
     String jsonBody = json.encode(bookings.toJson());
     try {
       final client = RetryClient(
@@ -183,7 +204,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Success'),
-                content: const Text('call has completed'),
+                content: const Text('booking has completed'),
                 actions: [
                   ElevatedButton(
                     child: const Text('OK'),

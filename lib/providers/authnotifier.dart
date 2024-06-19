@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/authstate.dart';
 import '../utils/purohitapi.dart';
+import 'categorynotifier.dart';
+import 'imagepicker.dart';
+import 'loader.dart';
+import 'locationstatenotifier.dart';
 import 'userprofiledatanotifier.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -94,11 +99,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<String> restoreAccessToken({String? call}) async {
-     print("restore access started $call");
+    print("restore access started $call");
     final url =
         '${PurohitApi().baseUrl}${PurohitApi().login}/${state.sessionId}';
     final prefs = await SharedPreferences.getInstance();
-   
+
     try {
       var response = await http.patch(
         Uri.parse(url),
@@ -116,7 +121,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           // Handle 401 Unauthorized
           // await logout();
           // await tryAutoLogin();
- print('access token from restoreAccessToken:${state.accessToken}');
+          print('access token from restoreAccessToken:${state.accessToken}');
           break;
         case 200:
           final newAccessToken = userDetails['data']['access_token'];

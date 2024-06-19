@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purohithulu/providers/phoneauthnotifier.dart';
+import 'package:purohithulu/providers/registeraspurohith.dart';
 
 import '../providers/categorynotifier.dart';
 import '../providers/imagepicker.dart';
+import '../providers/loader.dart';
 import '../providers/locationstatenotifier.dart';
 
+import 'button.dart';
 import 'insertprofile.dart';
 
 class AddUser extends StatefulWidget {
@@ -261,153 +265,119 @@ class _AddUserState extends State<AddUser> {
                         padding: EdgeInsets.all(8.0),
                         child: Text('Please select your services below')),
                     Consumer(builder: (context, cat, child) {
-                      final categoryState = cat.watch(categoryProvider);
-                      final filteredCategories = ref
-                          .watch(categoryProvider.notifier)
-                          .getFilteredCategories("e");
+                      final categoryState = ref.watch(categoryProvider);
+                      final categoryNotifier =
+                          ref.watch(categoryProvider.notifier);
+                      final filteredCategories =
+                          categoryNotifier.getFilteredCategories("e");
 
-                      //print(value.categories);
-                      return Flexible(
-                        flex: 1,
-                        child: ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          separatorBuilder: (context, mainindex) {
-                            return const Divider(
-                              thickness: 3,
-                              color: Colors.yellowAccent,
-                            );
-                          },
-                          itemCount: filteredCategories.length,
-                          itemBuilder: (cont, mainindex) {
-                            final category = filteredCategories[mainindex];
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: filteredCategories.map((category) {
                             final hasSubCategories = category.subcat != null &&
                                 category.subcat!.isNotEmpty;
-                            //                          //price.add(TextEditingController());
-
-                            // TextEditingController controller1 =
-                            //     prices[mainindex].isNotEmpty
-                            //         ? prices[mainindex][0]
-                            //         : TextEditingController();
 
                             return hasSubCategories
                                 ? ExpansionTile(
                                     title: Text(category.title!),
                                     children: [
-                                      ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemBuilder: (contex, subindex) {
-                                          return Column(
-                                            children: [
-                                              CheckboxListTile(
-                                                value: value.selectedCatId
-                                                    .contains(value
-                                                        .categorieModel!
-                                                        .data![mainindex]
-                                                        .subcat![subindex]
-                                                        .id),
-                                                onChanged: (val) {
-                                                  value.selectedCat(value
-                                                      .categorieModel!
-                                                      .data![mainindex]
-                                                      .subcat![subindex]
-                                                      .id!);
-                                                  //value.updateId(subindex);
-                                                },
-                                                title: Text(value
-                                                    .categorieModel!
-                                                    .data![mainindex]
-                                                    .subcat![subindex]
-                                                    .title!),
-                                              ),
-                                            ],
+                                      Column(
+                                        children:
+                                            category.subcat!.map((subCategory) {
+                                          return CheckboxListTile(
+                                            value: categoryNotifier
+                                                .selectedCatId
+                                                .contains(subCategory.id),
+                                            onChanged: (val) {
+                                              categoryNotifier.toggleCategory(
+                                                  subCategory.id!);
+                                            },
+                                            title: Text(subCategory.title!),
                                           );
-                                        },
-                                        itemCount: apicalls.categorieModel!
-                                            .data![mainindex].subcat!.length,
-                                      )
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      CheckboxListTile(
-                                        value: value.selectedCatId.contains(
-                                            value.categorieModel!
-                                                .data![mainindex].id),
-                                        onChanged: (val) {
-                                          value.selectedCat(value
-                                              .categorieModel!
-                                              .data![mainindex]
-                                              .id!);
-
-                                          value.updateId(mainindex);
-                                        },
-                                        title: Text(value.categorieModel!
-                                            .data![mainindex].title!),
+                                        }).toList(),
                                       ),
                                     ],
+                                  )
+                                : CheckboxListTile(
+                                    value: categoryNotifier.selectedCatId
+                                        .contains(category.id),
+                                    onChanged: (val) {
+                                      categoryNotifier
+                                          .toggleCategory(category.id!);
+                                    },
+                                    title: Text(category.title!),
                                   );
-                          },
+                          }).toList(),
                         ),
                       );
                     }),
-//               Consumer(
-//                 builder: (context, value, child) {
-//                   // print(value.isloading);
-//                   return value.watch(loadingProvider) == false
-//                       ? Button(
-//                           onTap: () async {
-//                             showDialog(
-//                               context: context,
-//                               builder: (context) {
-//                                 return AlertDialog(
-//                                   content: const Text(
-//                                       'If you are registering with the same mobile number, you will be logged out of the app and your account will be converted to Purohith. You will not be logged in as a user. Press "OK" to continue.'),
-//                                   actions: [
-//                                     value.watch(loadingProvider) == false
-//                                         ? Button(
-//                                             buttonname: 'OK',
-//                                             onTap: () {
-//                                               if (formKey.currentState!
-//                                                   .validate()) {
-//                                                 value.read(phoneAuthProvider.notifier).phoneAuth(
-//                                                     context,
-//                                                     "+91${widget.mobileNo!.text.trim()}",
-//                                                     widget.description!.text
-//                                                         .trim(),
-//                                                     widget.languages!.text
-//                                                         .trim(),
-//                                                     widget.userName!.text
-//                                                         .trim(),
-//                                                     prices);
-//                                               }
-//                                             },
-//                                           )
-//                                         : const CircularProgressIndicator(
-//                                             backgroundColor: Colors.yellow,
-//                                           )
-//                                   ],
-//                                 );
-//                               },
-//                             );
-//                           },
-//                           buttonname: widget.buttonName,
-//                         )
-//                       : const CircularProgressIndicator(
-//                           backgroundColor: Colors.yellow,
-//                         );
-//                 },
-//               ),
-//               TextFormField(
-//                 validator: (validator) {
-//                   if (apicalls.selectedCatId.isEmpty) {
-//                     return 'Please select atleast one service';
-//                   }
-//                   return null;
-//                 },
-//               ),
+                    Consumer(
+                      builder: (context, loader, child) {
+                        // print(value.isloading);
+                        return loader.watch(loadingProvider) == false
+                            ? Button(
+                                onTap: () async {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        content: const Text(
+                                            'If you are registering with the same mobile number, you will be logged out of the app and your account will be converted to Purohith. You will not be logged in as a user. Press "OK" to continue.'),
+                                        actions: [
+                                          loader.watch(loadingProvider) == false
+                                              ? Button(
+                                                  buttonname: 'OK',
+                                                  onTap: () {
+                                                    if (formKey.currentState!
+                                                        .validate()) {
+                                                      loader
+                                                          .read(registerProvider
+                                                              .notifier)
+                                                          .register(
+                                                              widget.mobileNo!
+                                                                  .text
+                                                                  .trim(),
+                                                              widget
+                                                                  .description!
+                                                                  .text
+                                                                  .trim(),
+                                                              widget.languages!
+                                                                  .text
+                                                                  .trim(),
+                                                              widget.userName!
+                                                                  .text
+                                                                  .trim(),
+                                                              context,
+                                                              ref);
+                                                    }
+                                                  },
+                                                )
+                                              : const CircularProgressIndicator(
+                                                  backgroundColor:
+                                                      Colors.yellow,
+                                                )
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                buttonname: widget.buttonName,
+                              )
+                            : const CircularProgressIndicator(
+                                backgroundColor: Colors.yellow,
+                              );
+                      },
+                    ),
+                    TextFormField(
+                      validator: (validator) {
+                        final categoryNotifier =
+                            ref.read(categoryProvider.notifier);
+                        if (categoryNotifier.selectedCatId.isEmpty) {
+                          return 'Please select atleast one service';
+                        }
+                        return null;
+                      },
+                    ),
                   ],
                 );
               },

@@ -19,6 +19,16 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
   CategoryNotifier(this.authNotifier) : super(CategoryState());
 
   get http => null;
+  List<int> selectedCatId = [];
+
+  void toggleCategory(int id) {
+    if (selectedCatId.contains(id)) {
+      selectedCatId.remove(id);
+    } else {
+      selectedCatId.add(id);
+    }
+    state = state.copyWith(categories: state.categories);
+  }
 
   Future<void> getCategories() async {
     final prefs = await SharedPreferences.getInstance();

@@ -62,7 +62,6 @@ class Categories extends ConsumerWidget {
     if (purohithState.data != null) {
       // Data is available
       users = purohithState.data!;
-      
 
       // ... Use filteredUsers for your UI
     } else {
@@ -71,10 +70,7 @@ class Categories extends ConsumerWidget {
     var top = {for (var obj in users) obj.id: obj};
     List<purohith.Data> topSet = top.values.toList();
     List<purohith.Data> topFive = topSet.sublist(0, 5);
-   
 
-   
-  
     //var catogaries = Provider.of<ApiCalls>(context);
     var filteredCall = call.where((item) => item.cattype != 'e').toList();
     var events = call.where((item) => item.cattype == 'e').toList();
@@ -87,33 +83,36 @@ class Categories extends ConsumerWidget {
             builder: (context, ref, child) {
               final images =
                   ref.watch(carouselStateProvider).carousel?.data ?? [];
-              return images.isEmpty?CircularProgressIndicator(): CarouselSlider(
-                items: images.map((data) {
-                  //      print(data.xfile!.path.isEmpty ? 'no image' : data.xfile!.path);
-                  return Container(
-                    margin: const EdgeInsets.all(6.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      image: data.xfile != null
-                          ? DecorationImage(
-                              image: FileImage(File(data.xfile!.path)),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                  );
-                }).toList(),
-                options: CarouselOptions(
-                  height: 180.0,
-                  enlargeCenterPage: true,
-                  autoPlay: true,
-                  aspectRatio: 16 / 9,
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                  enableInfiniteScroll: true,
-                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                  viewportFraction: 0.8,
-                ),
-              );
+              return images.isEmpty
+                  ? CircularProgressIndicator()
+                  : CarouselSlider(
+                      items: images.map((data) {
+                        //      print(data.xfile!.path.isEmpty ? 'no image' : data.xfile!.path);
+                        return Container(
+                          margin: const EdgeInsets.all(6.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            image: data.xfile != null
+                                ? DecorationImage(
+                                    image: FileImage(File(data.xfile!.path)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                        );
+                      }).toList(),
+                      options: CarouselOptions(
+                        height: 180.0,
+                        enlargeCenterPage: true,
+                        autoPlay: true,
+                        aspectRatio: 16 / 9,
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                        enableInfiniteScroll: true,
+                        autoPlayAnimationDuration:
+                            const Duration(milliseconds: 800),
+                        viewportFraction: 0.8,
+                      ),
+                    );
             },
           ),
           Container(
@@ -153,7 +152,6 @@ class Categories extends ConsumerWidget {
               ],
             ),
           ),
-
           SizedBox(
             height: 20,
           ),
@@ -241,7 +239,9 @@ class Categories extends ConsumerWidget {
                                           'title':
                                               allSubcategories[index].title,
                                           'cattype':
-                                              allSubcategories[index].cattype
+                                              allSubcategories[index].cattype,
+                                          'price':
+                                              allSubcategories[index].price,
                                         });
                                   },
                                   child: Container(
@@ -280,11 +280,8 @@ class Categories extends ConsumerWidget {
                                       ],
                                     ),
                                   ),
-                                  
                                 );
-                              }
-                              
-                              ),
+                              }),
                         )
                       ],
                     );
@@ -293,7 +290,7 @@ class Categories extends ConsumerWidget {
               ),
             );
           })
-                  ],
+        ],
       ),
     );
   }
@@ -322,25 +319,23 @@ class Categories extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Consumer(builder: (context, ref, child) {
-               final authNotifier = ref.watch(authProvider);
-              return CircleAvatar(
-                                radius: 30,
-                                backgroundImage:
-                                    user.profilepic != null
-                                        ? NetworkImage(
-                                            "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
-                                            headers: {
-                                              "Authorization":
-                                                  authNotifier.accessToken!
-                                            },
-                                          )
-                                        : const AssetImage('assets/icon.png')
-                                            as ImageProvider<Object>,
-                                // Optionally, you can add a radius or other styling properties here
-                              );
-            }, ),
-           
+            Consumer(
+              builder: (context, ref, child) {
+                final authNotifier = ref.watch(authProvider);
+                return CircleAvatar(
+                  radius: 30,
+                  backgroundImage: user.profilepic != null
+                      ? NetworkImage(
+                          "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
+                          headers: {"Authorization": authNotifier.accessToken!},
+                        )
+                      : const AssetImage('assets/icon.png')
+                          as ImageProvider<Object>,
+                  // Optionally, you can add a radius or other styling properties here
+                );
+              },
+            ),
+
             Text(
               user.username ?? "",
               style: TextStyle(fontWeight: FontWeight.w500),

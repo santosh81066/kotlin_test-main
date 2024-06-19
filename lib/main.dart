@@ -27,6 +27,10 @@ import 'view/wellcomescreen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 void main() {
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    debugPrintStack(stackTrace: details.stack);
+    return ErrorWidget(details.exception);
+  };
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();

@@ -45,7 +45,6 @@ class _RegisterState extends State<Register> {
       appBar: AppBar(
         title: const Text('Register as Purohith'),
       ),
-      drawer: const AppDrawer(),
       body: AddUser(
         mobileNo: mobileNo,
         userName: userName,

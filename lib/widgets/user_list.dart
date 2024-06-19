@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/categorynotifier.dart';
 import '/providers/authnotifier.dart';
 import '/providers/notificationprovider.dart';
 import '/providers/userprofiledatanotifier.dart';
@@ -43,6 +44,11 @@ class UserList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     List<Data> filteredUsers =
         users.where((purohith) => purohith.catid == productId).toList();
+    final categoryNotifier = ref.read(categoryProvider.notifier);
+    final categories = categoryNotifier.getFilteredCategories("e");
+    final category = categories.firstWhere(
+      (cat) => cat.id == productId,
+    );
 
     return StreamBuilder(
       stream: firebaseRealtimeUsersRef.onValue,
@@ -128,7 +134,7 @@ class UserList extends ConsumerWidget {
                             Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: Text(
-                                '₹ ${filteredUsers[index].amount ?? 0}',
+                                '₹ ${category.price ?? 0}',
                                 softWrap: true,
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
@@ -197,9 +203,9 @@ class UserList extends ConsumerWidget {
           return const SizedBox.shrink();
         }
 
-        var walletData =
-            walletSnapshot.data?.snapshot.value as Map<dynamic, dynamic>?;
-        double walletAmount = walletData?['amount'] ?? 0.0;
+        // var walletData =
+        //     walletSnapshot.data?.snapshot.value as Map<dynamic, dynamic>?;
+        // double walletAmount = walletData?['amount'] ?? 0.0;
 
         // if (!isOnline) {
         //   return const ElevatedButton(onPressed: null, child: Text('Offline'));

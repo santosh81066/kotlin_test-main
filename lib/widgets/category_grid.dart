@@ -55,15 +55,6 @@ class CategoryGrid extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                subcat[index].price != null
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "Amount: ${subcat[index].price!} ",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    : Container()
               ],
             ),
           ),

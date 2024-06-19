@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 import '../models/booking.dart';
 
 // Add the Firebase import
@@ -335,35 +334,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                                                     booking.bookingData![index]
                                                         .id!);
 
-                                            if (statusCode == 201) {
-                                              Future.delayed(Duration.zero)
-                                                  .then(
-                                                (value) {
-                                                  return showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Delete Booking'),
-                                                        content: const Text(
-                                                            'Booking has been deleted successfully'),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            child: const Text(
-                                                                'OK'),
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              );
-                                            }
+                                            if (statusCode == 201) {}
 
                                             // code to handle cancellation of this booking
                                           },
