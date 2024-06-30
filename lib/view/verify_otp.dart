@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:otp_text_field/otp_field.dart';
-import 'package:otp_text_field/otp_field_style.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -21,7 +19,7 @@ class VerifyOtp extends ConsumerStatefulWidget {
 class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
   String? smsCode;
   String button = 'SUBMIT';
- final TextEditingController _otpController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -40,7 +38,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
     setState(() {
       smsCode = code!;
     });
-     if (smsCode != null) {
+    if (smsCode != null) {
       _otpController.text = smsCode!;
     }
   }
@@ -97,7 +95,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
                           fontSize: 24,
                         ),
                       ),
-                       Text(
+                      Text(
                         "OTP send to ${mobileno.toString()}",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
@@ -105,7 +103,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
                       Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: PinCodeTextField(
-                          controller:_otpController,
+                          controller: _otpController,
                           showCursor: true,
                           appContext: context,
                           length: 6,

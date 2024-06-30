@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import '../controller/flutter_functions.dart';
+
 import '../providers/imagepicker.dart';
 
 class InsertProfile extends ConsumerWidget {

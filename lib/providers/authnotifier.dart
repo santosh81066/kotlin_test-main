@@ -119,8 +119,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       switch (response.statusCode) {
         case 401:
           // Handle 401 Unauthorized
-          // await logout();
-          // await tryAutoLogin();
+          await logout();
+          await tryAutoLogin();
           print('access token from restoreAccessToken:${state.accessToken}');
           break;
         case 200:
@@ -140,7 +140,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             refreshToken: newRefreshToken,
             refreshTokenExpiryDate: newRefreshTokenExpiryDate,
           );
-
+          print('access token from restoreAccessToken:${state.accessToken}');
           final userData = json.encode({
             'sessionId': state.sessionId,
             'refreshToken': newRefreshToken,

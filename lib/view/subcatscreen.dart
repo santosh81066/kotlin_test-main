@@ -2,7 +2,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../controller/flutter_functions.dart';
 import '../models/booking.dart';
 import '../models/purohithusers.dart';
 import '../providers/authnotifier.dart';

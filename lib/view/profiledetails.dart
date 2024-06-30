@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../models/purohithusers.dart';
+import '../providers/categorynotifier.dart';
 import '../providers/userprofiledatanotifier.dart';
 import '../providers/zegeocloudprovider.dart';
 import '../widgets/appbar.dart';
@@ -21,14 +22,17 @@ class ProfileDetails extends ConsumerStatefulWidget {
 }
 
 class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
-  void handleCallTap(BuildContext context, Data user, String productId) {
-    initiateCall(context, ref, user, productId);
+  void handleCallTap(
+      BuildContext context, Data user, String productId, int amount) {
+    initiateCall(context, ref, user, productId, amount);
   }
 
-  void initiateCall(
-      BuildContext context, WidgetRef ref, Data user, String productId) {
-    ref.read(zegeoCloudNotifierProvider.notifier).setPurohithDetails(
-        user.amount?.toDouble() ?? 0.0, int.parse(productId), user.id!);
+  void initiateCall(BuildContext context, WidgetRef ref, Data user,
+      String productId, int amount) {
+    print('initiate call');
+    ref
+        .read(zegeoCloudNotifierProvider.notifier)
+        .setPurohithDetails(amount.toDouble(), int.parse(productId), user.id!);
     var invites = ref
         .read(zegeoCloudNotifierProvider.notifier)
         .getInvitesFromTextCtrl(user.id.toString())
@@ -40,11 +44,11 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
         invitees: invites,
         isVideoCall: false,
         customData: json.encode({
-          "amount": user.amount ?? 0.0,
+          "amount": amount,
           "userid": ref.read(userProfileDataProvider).data![0].id,
           "catid": productId
         }),
-        notificationTitle: "purohithulu",
+        notificationTitle: user.username,
         notificationMessage: "You got an incomming call");
     // ref.read(zegeoCloudNotifierProvider).zegoController.sendCallInvitation(
     //       notificationTitle: "catname",
@@ -67,7 +71,13 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     final productId = arguments['productId'] as String;
     final DatabaseReference firebaseRealtimeUsersRef =
         FirebaseDatabase.instance.ref().child('presence');
+    final categoryNotifier = ref.read(categoryProvider.notifier);
+    final categories = categoryNotifier.getFilteredCategories("e");
+    final category = categories.firstWhere(
+      (cat) => cat.id == int.parse(productId),
+    );
     //  final handleCallTap = arguments['handleCallTap'] as Function;
+    print("ProfileDetails:${user.amount}");
     return Scaffold(
         appBar: purohithAppBar(context, 'Purohith Profile'),
         body: SingleChildScrollView(
@@ -250,8 +260,8 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                               buttonname: "Call Purohith",
                                               width: double.infinity,
                                               onTap: () {
-                                                handleCallTap(
-                                                    context, user, productId);
+                                                handleCallTap(context, user,
+                                                    productId, category.price!);
                                               });
                                         },
                                       )

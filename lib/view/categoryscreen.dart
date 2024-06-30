@@ -5,10 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-
-import '../controller/api_calls.dart';
-import '../controller/flutter_functions.dart';
 import '../models/categories.dart';
 import '../models/purohithusers.dart' as purohith;
 import '../providers/categorynotifier.dart';

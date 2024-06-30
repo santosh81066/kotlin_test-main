@@ -45,9 +45,9 @@ class ZegeoCloudNotifier extends StateNotifier<Call> {
         },
       ),
 
-      appID: 381310215,
+      appID: 1541186595,
       appSign:
-          'b27d415148d2f0d29cecb53b33709a09d9e5153705520c6ad5bf3f3c2d33b3ba',
+          '9e3efd985294e0f65d9d924894e659e6604e863e5d4b93f4704c98319f5d8572',
       userID: userId,
       userName: "$userName($catname)",
       plugins: [ZegoUIKitSignalingPlugin()],
@@ -74,17 +74,6 @@ class ZegeoCloudNotifier extends StateNotifier<Call> {
 
         /// support minimizing, show minimizing button
         config.topMenuBarConfig.isVisible = true;
-
-        // config.onHangUp = () {
-        //   CallDurationWidget.stopTimer(context, ref);
-        //   getbooking.getBookingHistory();
-        //   Navigator.pop(context);
-        // };
-        // config.onOnlySelfInRoom = (context) {
-        //   CallDurationWidget.stopTimer(context, ref);
-        //   getbooking.getBookingHistory();
-        //   Navigator.pop(context);
-        // };
 
         config.audioVideoViewConfig = ZegoPrebuiltAudioVideoViewConfig(
           foregroundBuilder: (context, size, user, extraInfo) {
@@ -123,8 +112,10 @@ class ZegeoCloudNotifier extends StateNotifier<Call> {
   }
 
   void setPurohithDetails(double? callRate, int? catid, int? purohithId) {
+    print('setPurohithDetails ');
     state = state.copyWith(
         callRate: callRate, ctypeId: catid, purohithId: purohithId);
+    print('setPurohithDetails ${state.callRate}');
   }
 
   void setCallDetails() {}

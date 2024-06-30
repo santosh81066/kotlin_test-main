@@ -156,7 +156,7 @@ class UserList extends ConsumerWidget {
                                 ref,
                                 fcmToken ?? '',
                                 "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${filteredUsers[index].id}",
-                                '₹ ${filteredUsers[index].amount ?? 0}',
+                                '₹ ${category.price}',
                                 cattype),
                           ],
                         ),

@@ -69,70 +69,70 @@ class BookingNotifier extends StateNotifier<Bookings> {
     }
   }
 
-  Future<int> deleteBooking(BuildContext cont, int bookingId) async {
+  Future<int> deleteBooking(BuildContext context, int bookingId) async {
     final url = '${PurohitApi().baseUrl}${PurohitApi().bookingHistory}';
     final databaseReference = FirebaseDatabase.instance.ref();
     final fbuser = FirebaseAuth.instance.currentUser;
     final uid = fbuser?.uid;
     final token = authNotifier.state.accessToken;
-    int statuscode = 0;
+    int statusCode = 0;
+
     final client = RetryClient(
       http.Client(),
       retries: 4,
       when: (response) {
-        return response.statusCode == 401 ? true : false;
+        return response.statusCode == 401;
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
           var accessToken = await authNotifier.restoreAccessToken();
-          // Only this block can run (once) until done
           req.headers['Authorization'] = accessToken;
         }
       },
     );
-    var response = await client.delete(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token!
-      },
-      body: json.encode({
-        "bookingId": bookingId,
-      }),
-    );
-    print('deleteBooking:${response.body}');
-    statuscode = response.statusCode;
-    if (response.statusCode == 201) {
-      final bookingRef = databaseReference.child('bookings').child(uid!);
-      statuscode = response.statusCode;
-      bookingRef.onValue.listen((event) {
-        DataSnapshot snapshot = event.snapshot;
+
+    try {
+      var response = await client.delete(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': token!,
+        },
+        body: json.encode({
+          "bookingId": bookingId,
+        }),
+      );
+
+      print('deleteBooking response: ${response.body}');
+      print('Response Status Code: ${response.statusCode}');
+
+      statusCode = response.statusCode;
+      if (response.statusCode == 201) {
+        final bookingRef = databaseReference.child('bookings').child(uid!);
+        DataSnapshot snapshot = await bookingRef.get();
+
         if (snapshot.value != null) {
           if (snapshot.value is Map<dynamic, dynamic>) {
             Map<String, dynamic> bookings =
                 Map<String, dynamic>.from(snapshot.value as Map);
             for (String key in bookings.keys) {
               if (bookings[key]['id'] == bookingId) {
-                bookingRef.child(key).remove();
-                Future.delayed(Duration.zero).then(
-                  (value) {
-                    return showDialog(
-                      context: cont,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Delete Booking'),
-                          content: const Text(
-                              'Booking has been deleted successfully'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('OK'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
+                await bookingRef.child(key).remove();
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Delete Booking'),
+                      content:
+                          const Text('Booking has been deleted successfully'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
                     );
                   },
                 );
@@ -141,12 +141,18 @@ class BookingNotifier extends StateNotifier<Bookings> {
             }
           }
         }
-      });
-    } else {
-      // Handle error response
+      } else {
+        print('Failed to delete booking: ${response.statusCode}');
+        // Handle error response
+      }
+    } catch (e) {
+      print('Error deleting booking: $e');
+      // Handle exception
+    } finally {
+      client.close();
     }
 
-    return statuscode;
+    return statusCode;
   }
 
   Future<void> sendBooking(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 import '../models/dateandtime.dart';
 
 final dateAndTimeProvider =
@@ -17,7 +16,7 @@ class DateAndTimeNotifier extends StateNotifier<DateAndTime> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 4)),
+      lastDate: DateTime(9999),
     );
     if (pickedDate != null) {
       state =

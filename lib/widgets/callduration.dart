@@ -9,7 +9,6 @@ import '../models/booking.dart';
 import '../providers/bookingnotifier.dart';
 import '../providers/zegeocloudprovider.dart';
 
-
 class CallDurationWidget extends StatelessWidget {
   const CallDurationWidget({Key? key}) : super(key: key);
 
