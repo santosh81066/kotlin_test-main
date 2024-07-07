@@ -41,7 +41,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       profile: profile,
       ftoken: prefs.getString('firebaseToken'),
     );
-    print('access token:${state.accessToken}');
+    print('access token from try auto login:${state.accessToken}');
     return true;
   }
 

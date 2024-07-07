@@ -68,7 +68,6 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedUserResponseJson = prefs.getString('userResponse');
     if (savedUserResponseJson != null) {
-      
       // Decode the JSON string back into a Map
       Map<String, dynamic> savedUserResponse =
           json.decode(savedUserResponseJson);
@@ -98,7 +97,8 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken = await authNotifier.restoreAccessToken(call: "get user");
+          var accessToken =
+              await authNotifier.restoreAccessToken(call: "get user");
           // Only this block can run (once) until done
           req.headers['Authorization'] = accessToken;
         }
@@ -260,7 +260,8 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken = await authNotifier.restoreAccessToken(call: "get user pic");
+          var accessToken =
+              await authNotifier.restoreAccessToken(call: "get user pic");
           // Only this block can run (once) until done
 
           req.headers['Authorization'] = accessToken;

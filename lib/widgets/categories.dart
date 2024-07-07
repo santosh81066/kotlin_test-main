@@ -134,17 +134,15 @@ class Categories extends ConsumerWidget {
                           shrinkWrap: true,
                           itemCount: topFive.length,
                           itemBuilder: ((context, index) {
-                            return GestureDetector(
-                                onTap: () {
-                                  Navigator.pushNamed(context, 'catscreen',
-                                      arguments: {
-                                        'cattype': call[index].cattype,
-                                        'id': call[index].id,
-                                        'cat name': call[index].title,
-                                        'billingMode': call[index].billingMode,
-                                      });
-                                },
-                                child: _buildProfileCard(topFive[index], call));
+                            return _buildProfileCard(
+                                topFive[index],
+                                call,
+                                context,
+                                call[index].cattype!,
+                                call[index].id!.toString(),
+                                call[index].price == null
+                                    ? 0
+                                    : call[index].price!);
                           })),
                     ),
                   ],
@@ -295,10 +293,8 @@ class Categories extends ConsumerWidget {
     );
   }
 
-  _buildProfileCard(
-    purohith.Data user,
-    List<Data> call,
-  ) {
+  _buildProfileCard(purohith.Data user, List<Data> call, BuildContext context,
+      String cattype, String productId, int amt) {
     var category = call
         .where(
           (element) => element.id == user.catid,
@@ -327,7 +323,6 @@ class Categories extends ConsumerWidget {
                   backgroundImage: user.profilepic != null
                       ? NetworkImage(
                           "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
-                          headers: {"Authorization": authNotifier.accessToken!},
                         )
                       : const AssetImage('assets/icon.png')
                           as ImageProvider<Object>,
@@ -356,6 +351,14 @@ class Categories extends ConsumerWidget {
               onPressed: () {
                 // handleCallTap(
                 //     context, ref, user, walletAmount, productId, fcmToken);
+                Navigator.of(context).pushNamed('profileDetails', arguments: {
+                  'url':
+                      "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
+                  'amount': amt,
+                  'cattype': cattype,
+                  'user': user,
+                  'productId': productId,
+                });
               },
               child: Text("View details"),
               style: ElevatedButton.styleFrom(

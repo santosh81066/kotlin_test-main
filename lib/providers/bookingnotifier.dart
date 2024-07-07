@@ -74,7 +74,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
     final databaseReference = FirebaseDatabase.instance.ref();
     final fbuser = FirebaseAuth.instance.currentUser;
     final uid = fbuser?.uid;
-    final token = authNotifier.state.accessToken;
+    final token = ''; // Replace with your actual method to get the access token
     int statusCode = 0;
 
     final client = RetryClient(
@@ -85,7 +85,8 @@ class BookingNotifier extends StateNotifier<Bookings> {
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken = await authNotifier.restoreAccessToken();
+          var accessToken =
+              ''; // Replace with your actual method to restore the access token
           req.headers['Authorization'] = accessToken;
         }
       },
@@ -96,7 +97,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': token!,
+          'Authorization': token,
         },
         body: json.encode({
           "bookingId": bookingId,
@@ -151,7 +152,6 @@ class BookingNotifier extends StateNotifier<Bookings> {
     } finally {
       client.close();
     }
-
     return statusCode;
   }
 
