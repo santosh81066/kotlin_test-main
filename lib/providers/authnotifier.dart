@@ -102,6 +102,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     print("restore access started $call");
     final url =
         '${PurohitApi().baseUrl}${PurohitApi().login}/${state.sessionId}';
+
     final prefs = await SharedPreferences.getInstance();
 
     try {
@@ -119,11 +120,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       switch (response.statusCode) {
         case 401:
           // Handle 401 Unauthorized
-          await logout();
-          await tryAutoLogin();
+          // await logout();
+          // await tryAutoLogin();
+          print("shared preferance ${prefs.getString('userData')}");
           print('access token from restoreAccessToken:${state.accessToken}');
           break;
         case 200:
+          print("refresh access token success");
           final newAccessToken = userDetails['data']['access_token'];
           final newAccessTokenExpiryDate = DateTime.now().add(
             Duration(seconds: userDetails['data']['access_token_expiry']),
@@ -132,7 +135,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           final newRefreshTokenExpiryDate = DateTime.now().add(
             Duration(seconds: userDetails['data']['refresh_token_expiry']),
           );
-
+          print('new accesstoken :$newAccessToken');
           // Update state
           state = state.copyWith(
             accessToken: newAccessToken,
@@ -150,7 +153,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           });
 
           prefs.setString('userData', userData);
-
+          print(
+              "shared preferance after success  ${prefs.getString('userData')}");
         // loading(false); // Update loading state
       }
     } on FormatException catch (formatException) {

@@ -20,6 +20,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
   Future<void> getBookingHistory({BuildContext? cont}) async {
     final url = PurohitApi().baseUrl + PurohitApi().bookingHistory;
     final token = authNotifier.state.accessToken;
+    print('actoken : $token');
     final databaseReference = FirebaseDatabase.instance.ref();
     final fbuser = FirebaseAuth.instance.currentUser;
     final uid = fbuser?.uid;
@@ -47,26 +48,25 @@ class BookingNotifier extends StateNotifier<Bookings> {
     Map<String, dynamic> bookings = json.decode(response.body);
     state = Bookings.fromJson(bookings);
     print('from booking response : $bookings');
-    for (var booking in state.bookingData!) {}
 
-    if (state.bookingData != null) {
-      for (var booking in state.bookingData!) {
-        final bookingSnapshot = await databaseReference
-            .child('bookings')
-            .child(uid!)
-            .orderByChild('id')
-            .equalTo(booking.id)
-            .once();
+    // if (state.bookingData != null) {
+    //   for (var booking in state.bookingData!) {
+    //     final bookingSnapshot = await databaseReference
+    //         .child('bookings')
+    //         .child(uid!)
+    //         .orderByChild('id')
+    //         .equalTo(booking.id)
+    //         .once();
 
-        if (bookingSnapshot.snapshot.value == null) {
-          await databaseReference
-              .child('bookings')
-              .child(uid)
-              .push()
-              .set(booking.toJson());
-        }
-      }
-    }
+    //     if (bookingSnapshot.snapshot.value == null) {
+    //       await databaseReference
+    //           .child('bookings')
+    //           .child(uid)
+    //           .push()
+    //           .set(booking.toJson());
+    //     }
+    //   }
+    // }
   }
 
   Future<int> deleteBooking(BuildContext context, int bookingId) async {
