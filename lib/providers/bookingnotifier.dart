@@ -6,7 +6,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/retry.dart';
-
 import 'package:http/http.dart' as http;
 
 import '../models/booking.dart';
@@ -17,6 +16,7 @@ import 'loader.dart';
 class BookingNotifier extends StateNotifier<Bookings> {
   final AuthNotifier authNotifier;
   BookingNotifier(this.authNotifier) : super(Bookings());
+
   Future<void> getBookingHistory({BuildContext? cont}) async {
     final url = PurohitApi().baseUrl + PurohitApi().bookingHistory;
     final token = authNotifier.state.accessToken;
@@ -33,7 +33,6 @@ class BookingNotifier extends StateNotifier<Bookings> {
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
           var accessToken = await authNotifier.restoreAccessToken();
-          // Only this block can run (once) until done
           req.headers['Authorization'] = accessToken;
         }
       },
@@ -48,25 +47,6 @@ class BookingNotifier extends StateNotifier<Bookings> {
     Map<String, dynamic> bookings = json.decode(response.body);
     state = Bookings.fromJson(bookings);
     print('from booking response : $bookings');
-
-    // if (state.bookingData != null) {
-    //   for (var booking in state.bookingData!) {
-    //     final bookingSnapshot = await databaseReference
-    //         .child('bookings')
-    //         .child(uid!)
-    //         .orderByChild('id')
-    //         .equalTo(booking.id)
-    //         .once();
-
-    //     if (bookingSnapshot.snapshot.value == null) {
-    //       await databaseReference
-    //           .child('bookings')
-    //           .child(uid)
-    //           .push()
-    //           .set(booking.toJson());
-    //     }
-    //   }
-    // }
   }
 
   Future<int> deleteBooking(BuildContext context, int bookingId) async {
@@ -74,7 +54,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
     final databaseReference = FirebaseDatabase.instance.ref();
     final fbuser = FirebaseAuth.instance.currentUser;
     final uid = fbuser?.uid;
-    final token = ''; // Replace with your actual method to get the access token
+    final token = authNotifier.state.accessToken;
     int statusCode = 0;
 
     final client = RetryClient(
@@ -85,8 +65,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken =
-              ''; // Replace with your actual method to restore the access token
+          var accessToken = await authNotifier.restoreAccessToken();
           req.headers['Authorization'] = accessToken;
         }
       },
@@ -97,7 +76,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': token,
+          'Authorization': token!,
         },
         body: json.encode({
           "bookingId": bookingId,
@@ -119,6 +98,13 @@ class BookingNotifier extends StateNotifier<Bookings> {
             for (String key in bookings.keys) {
               if (bookings[key]['id'] == bookingId) {
                 await bookingRef.child(key).remove();
+                // Remove the booking from the local state
+                state.bookingData!
+                    .removeWhere((booking) => booking.id == bookingId);
+                // state = Bookings(
+                //   bookingData: List.from(state
+                //       .bookingData!??[]), // Create a new instance to notify listeners
+                // );
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -187,7 +173,6 @@ class BookingNotifier extends StateNotifier<Bookings> {
         onRetry: (req, res, retryCount) async {
           if (retryCount == 0 && res?.statusCode == 401) {
             var accessToken = await authNotifier.restoreAccessToken();
-            // Only this block can run (once) until done
             req.headers['Authorization'] = accessToken;
           }
         },
@@ -204,25 +189,49 @@ class BookingNotifier extends StateNotifier<Bookings> {
       switch (response.statusCode) {
         case 201:
           loadingState.state = false;
+          bookings = bookings.copyWith(
+              id: int.parse(userDetails['data'][0]['id'].toString()));
           print('success');
-          showDialog(
-            context: context!,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Success'),
-                content: const Text('booking has completed'),
-                actions: [
-                  ElevatedButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-
+          bool bookingExists = await _checkIfBookingExists(bookings.id);
+          if (!bookingExists) {
+            await _addBookingToFirebase(bookings);
+            showDialog(
+              context: context!,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Success'),
+                  content: const Text('Booking has been completed'),
+                  actions: [
+                    ElevatedButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            print('Booking ID already exists');
+            showDialog(
+              context: context!,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Error'),
+                  content: const Text('Booking ID already exists'),
+                  actions: [
+                    ElevatedButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
           break;
         case 500:
           loadingState.state = false;
@@ -246,12 +255,39 @@ class BookingNotifier extends StateNotifier<Bookings> {
               );
             },
           );
-          //loading('send booking should be false');
           break;
       }
     } catch (e) {
       loadingState.state = false;
       print('booking error $e');
+    }
+  }
+
+  Future<bool> _checkIfBookingExists(int? bookingId) async {
+    final DatabaseReference bookingsRef =
+        FirebaseDatabase.instance.ref().child('bookings');
+    DataSnapshot snapshot = await bookingsRef.get();
+    if (snapshot.exists) {
+      for (var userBookings in snapshot.children) {
+        for (var booking in userBookings.children) {
+          if (booking.child('id').value == bookingId) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  Future<void> _addBookingToFirebase(BookingData? booking) async {
+    final DatabaseReference bookingsRef =
+        FirebaseDatabase.instance.ref().child('bookings');
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+
+    if (user != null && booking != null) {
+      await bookingsRef.child(user.uid).push().set(booking.toJson());
+      print('Booking added to Firebase');
     }
   }
 
@@ -264,6 +300,5 @@ class BookingNotifier extends StateNotifier<Bookings> {
 final bookingDataProvider =
     StateNotifierProvider<BookingNotifier, Bookings>((ref) {
   final authNotifier = ref.watch(authProvider.notifier);
-
   return BookingNotifier(authNotifier);
 });

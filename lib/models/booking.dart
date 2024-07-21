@@ -22,6 +22,17 @@ class Bookings {
                 (dynamic e) => BookingData.fromJson(e as Map<String, dynamic>))
             .toList();
 
+  Bookings.fromMap(Map<dynamic, dynamic> map)
+      : statusCode = map['statusCode'] as int?,
+        success = map['success'] as bool?,
+        messages = (map['messages'] as List?)
+            ?.map((dynamic e) => e as String)
+            .toList(),
+        bookingData = (map['data'] as List?)
+            ?.map((dynamic e) =>
+                BookingData.fromMap(Map<String, dynamic>.from(e), ''))
+            .toList();
+
   Map<String, dynamic> toJson() => {
         'statusCode': statusCode,
         'success': success,
@@ -34,7 +45,7 @@ class BookingData {
   final int? id;
   final String? address;
   final dynamic time;
-  final dynamic amount;
+  final double? amount;
   final dynamic minutes;
   final int? userid;
   final String? bookingStatus;
@@ -48,6 +59,7 @@ class BookingData {
   final String? username;
   final int? _originalAmount;
   final double? percentage = 10.0;
+  final String? key; // Firebase key
 
   BookingData({
     this.id,
@@ -65,6 +77,7 @@ class BookingData {
     this.eventName,
     this.purohithName,
     this.username,
+    this.key,
   }) : _originalAmount = amount?.toInt();
 
   BookingData copyWith({
@@ -103,11 +116,36 @@ class BookingData {
     );
   }
 
+  factory BookingData.fromMap(Map<String, dynamic> data, String key) {
+    return BookingData(
+      id: int.tryParse(data['id'].toString()) ?? 0,
+      address: data['address'] as String?,
+      time: data['time'],
+      amount: (data['amount'] != null)
+          ? double.tryParse(data['amount'].toString())
+          : 0.0,
+      minutes: data['minutes'],
+      userid: data['userid'] as int?,
+      bookingStatus: data['booking status'] as String?,
+      startotp: data['startotp'] as int?,
+      endotp: data['endotp'] as int?,
+      purohitCategory: data['purohit_category'] as String?,
+      familyMembers: data['familyMembers'],
+      goutram: data['goutram'] as String?,
+      eventName: data['event_name'] as String?,
+      purohithName: data['purohith_name'] as String?,
+      username: data['username'] as String?,
+      key: key,
+    );
+  }
+
   BookingData.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
         address = json['address'] as String?,
         time = json['time'],
-        amount = json['amount'],
+        amount = (json['amount'] != null)
+            ? double.tryParse(json['amount'].toString())
+            : 0.0,
         minutes = json['minutes'],
         userid = json['userid'] as int?,
         bookingStatus = json['booking status'] as String?,
@@ -115,12 +153,13 @@ class BookingData {
         endotp = json['endotp'] as int?,
         purohitCategory = json['purohit_category'] as String?,
         familyMembers = json['familyMembers'],
-        goutram = json['goutram'],
+        goutram = json['goutram'] as String?,
         eventName = json['event_name'] as String?,
         purohithName = json['purohith_name'] as String?,
         username = json['username'] as String?,
         _originalAmount =
-            json['amount'] != null ? (json['amount'] as num).toInt() : null;
+            (json['amount'] != null) ? (json['amount'] as num).toInt() : null,
+        key = null;
 
   Map<String, dynamic> toJson() => {
         'id': id,

@@ -188,7 +188,7 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
       var response = await client.send(request);
       var responseBody = await response.stream.bytesToString();
       var jsonResponse = json.decode(responseBody);
-
+      print("update response:$jsonResponse ${response.statusCode}");
       if (response.statusCode == 200) {
         prefs.setBool('profile', true);
       }

@@ -1,5 +1,5 @@
 class PurohitApi {
-  final String baseUrl = "https://www.purohithuluapp.in/";
+  final String baseUrl = "http://talk2purohit.com/";
   final String login = "sessions";
   final String voiceCallingtToken = "voice_calling_token";
   final String getcategory = 'insertcategory';
