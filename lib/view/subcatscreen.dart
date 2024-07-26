@@ -26,9 +26,14 @@ class SubCat extends ConsumerStatefulWidget {
 }
 
 class _SubCatState extends ConsumerState<SubCat> {
-  TextEditingController address = TextEditingController();
+  TextEditingController address1 = TextEditingController();
+  TextEditingController address2 = TextEditingController();
+  TextEditingController altmobileno = TextEditingController();
+
   String bookButtonLabel = 'View details';
-  String addressHintText = 'Please enter address';
+  String addresHintText = 'Please enter address1';
+   String description = 'Please enter description';
+    String altmobileNo = 'Please enter alt Mobile no';
   String? selectedLocation;
 
   @override
@@ -56,8 +61,24 @@ class _SubCatState extends ConsumerState<SubCat> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextWidget(
-                      controller: address,
-                      hintText: addressHintText,
+                      controller: address1,
+                      hintText: addresHintText,
+                      keyBoardType: TextInputType.multiline,
+                    ),
+                  ),
+                   Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextWidget(
+                      controller: address2,
+                      hintText: description,
+                      keyBoardType: TextInputType.multiline,
+                    ),
+                  ),
+                    Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextWidget(
+                      controller:altmobileno,
+                      hintText: altmobileNo,
                       keyBoardType: TextInputType.multiline,
                     ),
                   ),
@@ -98,10 +119,10 @@ class _SubCatState extends ConsumerState<SubCat> {
                     onTap: isLoading
                         ? null
                         : () async {
-                            String addressText = address.text;
+                            String addressText = "${address1.text}${address2.text}";
                             BookingData newBooking = BookingData(
                               // Set properties for the new booking
-
+purohitCategory: productDetails['title'],
                               time:
                                   '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
                               address: addressText.trim(),
@@ -264,54 +285,5 @@ class _SubCatState extends ConsumerState<SubCat> {
     );
   }
 
-  void _showBookingDialog(Data user, WidgetRef ref, BuildContext context,
-      String ctypeId, String purohithId) {
-    var isLoading = ref.read(loadingProvider);
-    var bookingProvider = ref.read(bookingDataProvider.notifier);
-    var dateAndTimeNotifier = ref.watch(dateAndTimeProvider.notifier);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: TextWidget(
-            controller: address,
-            hintText: addressHintText,
-            keyBoardType: TextInputType.multiline,
-          ),
-          content: Row(
-            children: [
-              Expanded(
-                child: Consumer(
-                  builder: (context, ref, child) {
-                    final dateAndTime = ref.watch(dateAndTimeProvider);
-                    return GestureDetector(
-                      onTap: () async {
-                        dateAndTimeNotifier.pickDate(context).then(
-                            (value) => dateAndTimeNotifier.selectTime(context));
-                        print('date:${ref.watch(dateAndTimeProvider).date}');
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          ref.watch(dateAndTimeProvider).date == null
-                              ? 'Pick your date and time'
-                              : 'Date: ${dateAndTime.date}\nTime: ${dateAndTime.time}',
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  
 }

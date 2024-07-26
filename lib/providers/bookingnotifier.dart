@@ -99,8 +99,8 @@ class BookingNotifier extends StateNotifier<Bookings> {
               if (bookings[key]['id'] == bookingId) {
                 await bookingRef.child(key).remove();
                 // Remove the booking from the local state
-                state.bookingData!
-                    .removeWhere((booking) => booking.id == bookingId);
+                // state.bookingData!
+                //     .removeWhere((booking) => booking.id == bookingId);
                 // state = Bookings(
                 //   bookingData: List.from(state
                 //       .bookingData!??[]), // Create a new instance to notify listeners
@@ -200,7 +200,7 @@ class BookingNotifier extends StateNotifier<Bookings> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: const Text('Success'),
-                  content: const Text('Booking has been completed'),
+                  content: const Text('Thank you for booking we will assign you purohith shortly in case emergemcy please contact customers service 7287868697'),
                   actions: [
                     ElevatedButton(
                       child: const Text('OK'),

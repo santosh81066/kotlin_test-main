@@ -19,7 +19,6 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
       FirebaseDatabase.instance.ref().child('bookings');
 
   void _cancelBooking(int bookingKey) {
-    // Call your provider's delete booking function here
     ref.read(bookingDataProvider.notifier).deleteBooking(context, bookingKey);
   }
 
@@ -119,7 +118,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                 }
               }
 
-              switch (bookingData['booking status']) {
+              switch (bookingData['status']) {
                 case 'w':
                   status = 'Please wait while Purohith confirms booking';
                   break;
@@ -166,23 +165,17 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                               fontSize: 18.0,
                             ),
                           ),
-                          Expanded(
-                            child: Center(
-                              child: Text(
-                                bookingData['event_name']?.isNotEmpty ?? false
-                                    ? bookingData['event_name']
-                                    : bookingData['purohit_category'] ?? '',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 10.0),
+                      Text(
+                        "Event Name : ${bookingData['purohit_category']?.isNotEmpty ? bookingData['purohit_category'] : ''}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -195,13 +188,6 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                 ),
                               ),
                             ),
-                          if (bookingData['goutram']?.isNotEmpty ?? false)
-                            Text(
-                              'Goutram: ${bookingData['goutram']}',
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                              ),
-                            ),
                           if (bookingData['purohith_name']?.isNotEmpty ?? false)
                             Text(
                               'Purohith: ${bookingData['purohith_name']}',
@@ -212,27 +198,6 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                         ],
                       ),
                       const SizedBox(height: 10.0),
-                      if (familyMemberPart?.isNotEmpty ?? false)
-                        Text(
-                          'Family Members: $familyMemberPart',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                          ),
-                        ),
-                      const SizedBox(height: 10.0),
-                      if (altMobileNoPart?.isNotEmpty ?? false)
-                        Text(
-                          'Alternate Mobile No: $altMobileNoPart',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                          ),
-                        ),
-                      Text(
-                        status,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                        ),
-                      ),
                       Text(
                         'Time: ${bookingData['time'] ?? ''}',
                         style: const TextStyle(
@@ -246,21 +211,43 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                             fontSize: 16.0,
                           ),
                         ),
-                      const SizedBox(height: 10.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              _cancelBooking(bookingData['id']);
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.redAccent,
-                            ),
-                            child: const Text('Cancel'),
+                      if (bookingData['status'] == 'a')
+                        Text(
+                          'Start OTP: ${bookingData['startotp']}',
+                          style: const TextStyle(
+                            fontSize: 16.0,
                           ),
-                        ],
+                        ),
+                      if (bookingData['status'] == 'o')
+                        Text(
+                          'End OTP: ${bookingData['endotp']}',
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      const SizedBox(height: 10.0),
+                      bookingData['status'] == 'c'
+                          ? Container()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    _cancelBooking(bookingData['id']);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            ),
+                      Text(
+                        status,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                        ),
                       ),
                     ],
                   ),

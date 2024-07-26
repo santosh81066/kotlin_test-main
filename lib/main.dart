@@ -192,7 +192,7 @@ class _MyAppState extends State<MyApp> {
             return MaterialApp(
               navigatorKey: widget.navigatorKey,
               debugShowCheckedModeBanner: false,
-              title: 'Purohithulu',
+              title: 'Talk2Purohith',
               scaffoldMessengerKey: scaffoldMessengerKey,
               theme: ThemeData(
                 primarySwatch: customColor,
@@ -254,7 +254,7 @@ class _MyAppState extends State<MyApp> {
                 //       scaffoldMessengerKey: scaffoldMessengerKey,
                 //     ),
                 'events': (context) {
-                  return Events();
+                  return const Events();
                 },
                 'register': (context) {
                   return Register(scaffoldMessengerKey: scaffoldMessengerKey);

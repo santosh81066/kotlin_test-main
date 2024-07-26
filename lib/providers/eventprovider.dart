@@ -74,6 +74,7 @@ class EventNotifier extends StateNotifier<Events> {
     final url = '${PurohitApi().baseUrl}${PurohitApi().createPackage}';
 
     final token = authNotifier.state.accessToken;
+    print("token from events : $token");
     final client = RetryClient(
       http.Client(),
       retries: 4,
@@ -98,6 +99,7 @@ class EventNotifier extends StateNotifier<Events> {
     );
     Map<String, dynamic> event = json.decode(response.body);
     state = Events.fromJson(event);
+    print("events : $event");
   }
 
   Future<void> loadImages(BuildContext cont) async {

@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/authnotifier.dart';
@@ -11,7 +9,6 @@ import '/models/purohithusers.dart' as purohith;
 import '/providers/carouselstatenotifier.dart';
 import '/providers/categorynotifier.dart';
 import '/providers/purohithnotifier.dart';
-
 import '../models/carouselimages.dart' as carousel;
 import '../utils/purohitapi.dart';
 
@@ -27,27 +24,8 @@ class Categories extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // for (var i = 0; i < call.length; i++)
-    //   if (call[i].cattype == "b") {
-    //     Consumer(builder: (context, ref, child) {
-    //       List<Data> allCategories = ref.read(categoryProvider).categories;
-
-    //       // Flatten the list of subcategories into a single list
-    //       List<SubCategory> allSubcategories = allCategories
-    //           .where((category) =>
-    //               category.subcat != null && category.subcat!.isNotEmpty)
-    //           .expand((category) => category.subcat!)
-    //           .toList();
-
-    //       // Iterate over each category, filter and add their subcategories to the list
-
-    //       return CategoryListView(
-    //           subcat: allSubcategories, cattype: call[i].cattype.toString());
-    //     });
-    //   } else {
-    //     return Text("no data");
-    //   }
-    List<SubCategory> allSubcategories = call
+    // Filter subcategories with cattype "b" and main categories with cattype "e"
+    List<SubCategory> subcategoriesTypeB = call
         .where((category) =>
             category.cattype == "b" &&
             category.subcat != null &&
@@ -55,25 +33,25 @@ class Categories extends ConsumerWidget {
         .expand((category) => category.subcat!)
         .toList();
 
-    List<purohith.Data> users = [];
+    List<Data> categoriesTypeE = call
+        .where((category) =>
+            category.cattype == "e" &&
+            (category.subcat == null || category.subcat!.isEmpty))
+        .toList();
 
+    List<purohith.Data> users = [];
     final purohithState = ref.watch(purohithNotifierProvider);
 
     if (purohithState.data != null) {
       // Data is available
       users = purohithState.data!;
-
-      // ... Use filteredUsers for your UI
     } else {
       return Center(child: CircularProgressIndicator());
     }
+
     var top = {for (var obj in users) obj.id: obj};
     List<purohith.Data> topSet = top.values.toList();
     List<purohith.Data> topFive = topSet.sublist(0, 5);
-
-    //var catogaries = Provider.of<ApiCalls>(context);
-    var filteredCall = call.where((item) => item.cattype != 'e').toList();
-    var events = call.where((item) => item.cattype == 'e').toList();
 
     return SingleChildScrollView(
       child: Column(
@@ -87,7 +65,6 @@ class Categories extends ConsumerWidget {
                   ? CircularProgressIndicator()
                   : CarouselSlider(
                       items: images.map((data) {
-                        //      print(data.xfile!.path.isEmpty ? 'no image' : data.xfile!.path);
                         return Container(
                           margin: const EdgeInsets.all(6.0),
                           decoration: BoxDecoration(
@@ -172,7 +149,7 @@ class Categories extends ConsumerWidget {
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
-                              itemCount: filteredCall.length,
+                              itemCount: categories.categories.length,
                               itemBuilder: (context, index) {
                                 return GestureDetector(
                                   onTap: () {
@@ -187,15 +164,10 @@ class Categories extends ConsumerWidget {
                                   },
                                   child: _buildCategoryCard(
                                     categories.categories[index],
-                                    filteredCall[index],
+                                    call[index],
                                   ),
                                 );
-                              }
-                              // Padding(
-                              //       padding: const EdgeInsets.all(8.0),
-                              //       child: Text("Astrology"),
-                              //     )
-                              ),
+                              }),
                         )
                       ],
                     );
@@ -217,7 +189,6 @@ class Categories extends ConsumerWidget {
                   Text("Trending Pooja's",
                       style: TextStyle(fontWeight: FontWeight.w600)),
                   Consumer(builder: (context, ref, child) {
-                    var categories = ref.watch(categoryProvider);
                     return Column(
                       children: [
                         SizedBox(
@@ -225,60 +196,112 @@ class Categories extends ConsumerWidget {
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
-                              itemCount: allSubcategories.length,
+                              itemCount: subcategoriesTypeB.length +
+                                  categoriesTypeE.length,
                               itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, "subcatscreen",
-                                        arguments: {
-                                          'parentid':
-                                              allSubcategories[index].parentid,
-                                          'id': allSubcategories[index].id,
-                                          'title':
-                                              allSubcategories[index].title,
-                                          'cattype':
-                                              allSubcategories[index].cattype,
-                                          'price':
-                                              allSubcategories[index].price,
-                                        });
-                                  },
-                                  child: Container(
-                                    width: 100,
-                                    child: Column(
-                                      children: [
-                                        Card(
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              side: BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 96, 95, 95),
-                                                  width: 0.8)),
-                                          child: Container(
-                                            width: 100,
-                                            height: 130,
-                                            padding: EdgeInsets.all(8),
-                                            child: AspectRatio(
-                                              aspectRatio: 1,
-                                              child: CircleAvatar(
-                                                backgroundColor: Colors.white,
-                                                backgroundImage: NetworkImage(
-                                                  "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${allSubcategories[index].id}",
-                                                  // headers: {"Authorization": token.accessToken!},
+                                if (index < subcategoriesTypeB.length) {
+                                  final subcategory = subcategoriesTypeB[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, "subcatscreen",
+                                          arguments: {
+                                            'parentid': subcategory.parentid,
+                                            'id': subcategory.id,
+                                            'title': subcategory.title,
+                                            'cattype': subcategory.cattype,
+                                            'price': subcategory.price,
+                                          });
+                                    },
+                                    child: Container(
+                                      width: 100,
+                                      child: Column(
+                                        children: [
+                                          Card(
+                                            color: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                side: BorderSide(
+                                                    color: Color.fromARGB(
+                                                        255, 96, 95, 95),
+                                                    width: 0.8)),
+                                            child: Container(
+                                              width: 100,
+                                              height: 130,
+                                              padding: EdgeInsets.all(8),
+                                              child: AspectRatio(
+                                                aspectRatio: 1,
+                                                child: CircleAvatar(
+                                                  backgroundColor:
+                                                      Colors.white,
+                                                  backgroundImage: NetworkImage(
+                                                    "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${subcategory.id}",
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        Text(
-                                          allSubcategories[index].title!,
-                                          textAlign: TextAlign.center,
-                                        )
-                                      ],
+                                          Text(
+                                            subcategory.title!,
+                                            textAlign: TextAlign.center,
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                } else {
+                                  final categoryIndex =
+                                      index - subcategoriesTypeB.length;
+                                  final category = categoriesTypeE[categoryIndex];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, "events",
+                                          arguments: {
+                                            'id': category.id,
+                                            'title': category.title,
+                                            'price': category.price,
+                                          });
+                                    },
+                                    child: Container(
+                                      width: 100,
+                                      child: Column(
+                                        children: [
+                                          Card(
+                                            color: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                side: BorderSide(
+                                                    color: Color.fromARGB(
+                                                        255, 96, 95, 95),
+                                                    width: 0.8)),
+                                            child: Container(
+                                              width: 100,
+                                              height: 130,
+                                              padding: EdgeInsets.all(8),
+                                              child: AspectRatio(
+                                                aspectRatio: 1,
+                                                child: CircleAvatar(
+                                                  backgroundColor:
+                                                      Colors.white,
+                                                  backgroundImage: NetworkImage(
+                                                    "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${category.id}",
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            category.title!,
+                                            textAlign: TextAlign.center,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
                               }),
                         )
                       ],
@@ -300,9 +323,6 @@ class Categories extends ConsumerWidget {
           (element) => element.id == user.catid,
         )
         .toList();
-    // String categoryTitle =
-    //     category.isNotEmpty ? category[0].title ?? "No Title" : "No Category";
-    // print("list :$category,$categoryTitle");
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -326,17 +346,14 @@ class Categories extends ConsumerWidget {
                         )
                       : const AssetImage('assets/icon.png')
                           as ImageProvider<Object>,
-                  // Optionally, you can add a radius or other styling properties here
                 );
               },
             ),
-
             Text(
               user.username ?? "",
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
             for (var cat in category) Text("(${cat.id})"),
-            // Text(user.role ?? ""),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -349,8 +366,6 @@ class Categories extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // handleCallTap(
-                //     context, ref, user, walletAmount, productId, fcmToken);
                 Navigator.of(context).pushNamed('profileDetails', arguments: {
                   'url':
                       "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
@@ -389,7 +404,7 @@ class Categories extends ConsumerWidget {
               backgroundImage: categori.xfile != null
                   ? FileImage(File(categori.xfile!.path))
                   : const AssetImage('assets/placeholder.png')
-                      as ImageProvider<Object>, // Placeholder image
+                      as ImageProvider<Object>,
             ),
           ),
         ),
