@@ -32,25 +32,24 @@ class _SubCatState extends ConsumerState<SubCat> {
 
   String bookButtonLabel = 'View details';
   String addresHintText = 'Please enter address1';
-  String description = 'Please enter description';
-  String altmobileNo = 'Please enter alt Mobile no';
+  String descriptionHintText = 'Please enter description';
+  String altmobileNoHintText = 'Please enter alt Mobile no';
   String? selectedLocation;
 
   @override
   Widget build(BuildContext context) {
     final productDetails = ModalRoute.of(context)!.settings.arguments as Map;
 
-    // final dateAndTimeProvider = Provider.of<FlutterFunctions>(context);
     final DatabaseReference firebaseRealtimeUsersRef =
         FirebaseDatabase.instance.ref().child('presence');
 
     return Scaffold(
       appBar: purohithAppBar(context, 'Book ${productDetails['title']}'),
       body: Consumer(
-        builder: (context, sub, child) {
-          var bookingProvider = sub.read(bookingDataProvider.notifier);
-          var isLoading = sub.read(loadingProvider);
-          var dateAndTimeNotifier = sub.watch(dateAndTimeProvider.notifier);
+        builder: (context, ref, child) {
+          var bookingProvider = ref.read(bookingDataProvider.notifier);
+          var isLoading = ref.read(loadingProvider);
+          var dateAndTimeNotifier = ref.watch(dateAndTimeProvider.notifier);
 
           return Center(
             child: Card(
@@ -63,23 +62,23 @@ class _SubCatState extends ConsumerState<SubCat> {
                     child: TextWidget(
                       controller: address1,
                       hintText: addresHintText,
-                      keyBoardType: TextInputType.multiline,
+                      keyBoardType: TextInputType.text,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextWidget(
                       controller: address2,
-                      hintText: description,
-                      keyBoardType: TextInputType.multiline,
+                      hintText: descriptionHintText,
+                      keyBoardType: TextInputType.text,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextWidget(
                       controller: altmobileno,
-                      hintText: altmobileNo,
-                      keyBoardType: TextInputType.multiline,
+                      hintText: altmobileNoHintText,
+                      keyBoardType: TextInputType.phone,
                     ),
                   ),
                   Row(
@@ -90,11 +89,9 @@ class _SubCatState extends ConsumerState<SubCat> {
                           final dateAndTime = ref.watch(dateAndTimeProvider);
                           return GestureDetector(
                             onTap: () async {
-                              dateAndTimeNotifier.pickDate(context).then(
-                                  (value) =>
-                                      dateAndTimeNotifier.selectTime(context));
-                              print(
-                                  'date:${ref.watch(dateAndTimeProvider).date}');
+                              await dateAndTimeNotifier.pickDate(context);
+                              await dateAndTimeNotifier.selectTime(context);
+                              print('date:${dateAndTime.date}');
                             },
                             child: Container(
                               padding: const EdgeInsets.all(10),
@@ -103,7 +100,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                               child: Text(
-                                ref.watch(dateAndTimeProvider).date == null
+                                dateAndTime.date == null
                                     ? 'Pooja date and time'
                                     : 'Date: ${dateAndTime.date}\nTime: ${dateAndTime.time}',
                                 textAlign: TextAlign.center,
@@ -119,15 +116,15 @@ class _SubCatState extends ConsumerState<SubCat> {
                     onTap: isLoading
                         ? null
                         : () async {
-                            String addressText =
-                                "${address1.text}${address2.text}";
+                            String addressText = "${address2.text.trim()}";
+                            // ${address1.text.trim()}
                             BookingData newBooking = BookingData(
                               // Set properties for the new booking
                               purohitCategory: productDetails['title'],
                               time:
                                   '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
                               address:
-                                  "address : ${addressText.trim()} description : ${address2.text.trim} alt mobile no : ${altmobileno.text.trim()}",
+                                  "address: ${addressText} description: ${address2.text.trim()} alt mobile no: ${altmobileno.text.trim()}",
                               bookingStatus: 'w',
                               // ... other properties ...
                             );
@@ -150,6 +147,7 @@ class _SubCatState extends ConsumerState<SubCat> {
     );
   }
 
+  ///SUBCATSCREEN
   List<Data> _getFilteredUsers(WidgetRef ref, Map productDetails) {
     var purohith = ref.watch(purohithNotifierProvider);
     var location = ref.watch(locationProvider.notifier);
@@ -163,30 +161,6 @@ class _SubCatState extends ConsumerState<SubCat> {
       return hasMatchingCategory && hasMatchingLocation;
     }).toList();
   }
-
-  // Widget _buildLocationFilterDropdown(WidgetRef ref) {
-  //   var locationState = ref.watch(locationProvider);
-  //   var locationNotifier = ref.watch(locationProvider.notifier);
-  //   return DropdownButton<String>(
-  //     elevation: 16,
-  //     isExpanded: true,
-  //     hint: const Text('Filter purohith based on location'),
-  //     items: locationState.data.map((v) {
-  //           return DropdownMenuItem<String>(
-  //             value: v.location,
-  //             child: Text(v.location),
-  //           );
-  //         }).toList() ??
-  //         [],
-  //     onChanged: (val) {
-  //       if (val != null) {
-  //         print('location changed:$val');
-  //         locationNotifier.setFilterLocation(val);
-  //       }
-  //     },
-  //     value: locationNotifier.getFilterLocation(),
-  //   );
-  // }
 
   Widget _buildUsersListView(
       DatabaseReference firebaseRealtimeUsersRef,
@@ -223,14 +197,12 @@ class _SubCatState extends ConsumerState<SubCat> {
   Widget _buildUserCard(Data user, Map<dynamic, dynamic> fbValues,
       WidgetRef ref, BuildContext context, int ctypeId, String cattype) {
     var token = ref.read(authProvider);
-    // Find user's online status in Firebase
     final foundValue = fbValues.values
         .firstWhere((value) => value['id'] == user.id, orElse: () => null);
     if (foundValue == null) {
       return const SizedBox();
     }
 
-    // User is online, display their information
     return Card(
       child: Column(
         children: [
