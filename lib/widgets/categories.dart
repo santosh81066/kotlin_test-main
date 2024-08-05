@@ -138,7 +138,7 @@ class Categories extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Interact With Purohotulu For",
+                  Text("Categories",
                       style: TextStyle(fontWeight: FontWeight.w600)),
                   Consumer(builder: (context, ref, child) {
                     var categories = ref.watch(categoryProvider);
@@ -153,14 +153,30 @@ class Categories extends ConsumerWidget {
                               itemBuilder: (context, index) {
                                 return GestureDetector(
                                   onTap: () {
-                                    Navigator.pushNamed(context, 'catscreen',
-                                        arguments: {
-                                          'cattype': call[index].cattype,
-                                          'id': call[index].id,
-                                          'cat name': call[index].title,
-                                          'billingMode':
-                                              call[index].billingMode,
-                                        });
+                                    if (categories.categories[index].cattype ==
+                                        'e') {
+                                      Navigator.pushNamed(context, "events",
+                                          arguments: {
+                                            'id':
+                                                categories.categories[index].id,
+                                            'title': categories
+                                                .categories[index].title,
+                                            'price': categories
+                                                .categories[index].price,
+                                          });
+                                    } else {
+                                      Navigator.pushNamed(context, 'catscreen',
+                                          arguments: {
+                                            'cattype': categories
+                                                .categories[index].cattype,
+                                            'id':
+                                                categories.categories[index].id,
+                                            'cat name': categories
+                                                .categories[index].title,
+                                            'billingMode': categories
+                                                .categories[index].billingMode,
+                                          });
+                                    }
                                   },
                                   child: _buildCategoryCard(
                                     categories.categories[index],
@@ -196,112 +212,56 @@ class Categories extends ConsumerWidget {
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
-                              itemCount: subcategoriesTypeB.length +
-                                  categoriesTypeE.length,
+                              itemCount: subcategoriesTypeB.length,
                               itemBuilder: (context, index) {
-                                if (index < subcategoriesTypeB.length) {
-                                  final subcategory = subcategoriesTypeB[index];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "subcatscreen",
-                                          arguments: {
-                                            'parentid': subcategory.parentid,
-                                            'id': subcategory.id,
-                                            'title': subcategory.title,
-                                            'cattype': subcategory.cattype,
-                                            'price': subcategory.price,
-                                          });
-                                    },
-                                    child: Container(
-                                      width: 100,
-                                      child: Column(
-                                        children: [
-                                          Card(
-                                            color: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                                side: BorderSide(
-                                                    color: Color.fromARGB(
-                                                        255, 96, 95, 95),
-                                                    width: 0.8)),
-                                            child: Container(
-                                              width: 100,
-                                              height: 130,
-                                              padding: EdgeInsets.all(8),
-                                              child: AspectRatio(
-                                                aspectRatio: 1,
-                                                child: CircleAvatar(
-                                                  backgroundColor:
-                                                      Colors.white,
-                                                  backgroundImage: NetworkImage(
-                                                    "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${subcategory.id}",
-                                                  ),
+                                final subcategory = subcategoriesTypeB[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, "subcatscreen",
+                                        arguments: {
+                                          'parentid': subcategory.parentid,
+                                          'id': subcategory.id,
+                                          'title': subcategory.title,
+                                          'cattype': subcategory.cattype,
+                                          'price': subcategory.price,
+                                        });
+                                  },
+                                  child: Container(
+                                    width: 100,
+                                    child: Column(
+                                      children: [
+                                        Card(
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              side: BorderSide(
+                                                  color: Color.fromARGB(
+                                                      255, 96, 95, 95),
+                                                  width: 0.8)),
+                                          child: Container(
+                                            width: 100,
+                                            height: 130,
+                                            padding: EdgeInsets.all(8),
+                                            child: AspectRatio(
+                                              aspectRatio: 1,
+                                              child: CircleAvatar(
+                                                backgroundColor: Colors.white,
+                                                backgroundImage: NetworkImage(
+                                                  "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${subcategory.id}",
                                                 ),
                                               ),
                                             ),
                                           ),
-                                          Text(
-                                            subcategory.title!,
-                                            textAlign: TextAlign.center,
-                                          )
-                                        ],
-                                      ),
+                                        ),
+                                        Text(
+                                          subcategory.title!,
+                                          textAlign: TextAlign.center,
+                                        )
+                                      ],
                                     ),
-                                  );
-                                } else {
-                                  final categoryIndex =
-                                      index - subcategoriesTypeB.length;
-                                  final category = categoriesTypeE[categoryIndex];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "events",
-                                          arguments: {
-                                            'id': category.id,
-                                            'title': category.title,
-                                            'price': category.price,
-                                          });
-                                    },
-                                    child: Container(
-                                      width: 100,
-                                      child: Column(
-                                        children: [
-                                          Card(
-                                            color: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                                side: BorderSide(
-                                                    color: Color.fromARGB(
-                                                        255, 96, 95, 95),
-                                                    width: 0.8)),
-                                            child: Container(
-                                              width: 100,
-                                              height: 130,
-                                              padding: EdgeInsets.all(8),
-                                              child: AspectRatio(
-                                                aspectRatio: 1,
-                                                child: CircleAvatar(
-                                                  backgroundColor:
-                                                      Colors.white,
-                                                  backgroundImage: NetworkImage(
-                                                    "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${category.id}",
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            category.title!,
-                                            textAlign: TextAlign.center,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }
+                                  ),
+                                );
                               }),
                         )
                       ],

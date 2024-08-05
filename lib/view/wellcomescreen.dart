@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:purohithulu/view/account.dart';
 
 import '../providers/bottomnavigationnotifier.dart';
 import '../providers/carouselstatenotifier.dart';
@@ -13,6 +12,7 @@ import '../widgets/app_drawer.dart';
 import '../widgets/appbar.dart';
 import '../widgets/bottemnavigationbar.dart';
 import '../widgets/categories.dart';
+import 'account.dart';
 import 'bookingscreen.dart';
 import 'horoscopescreen.dart';
 
@@ -172,7 +172,7 @@ class _WellcomeScreenState extends ConsumerState<WellcomeScreen> {
                         onTitleChanged: (title) => appBarTitle.value = title),
                     HoroscopeList(
                         onTitleChanged: (title) => appBarTitle.value = title),
-                    MyAccount()
+                    const MyAccount()
                   ],
                 ),
                 bottomNavigationBar: BottemNavigationBar(

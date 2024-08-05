@@ -3,10 +3,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:purohithulu/models/registeraspurohith.dart';
+
 import 'package:http_parser/http_parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import '../models/registeraspurohith.dart';
 import '../utils/purohitapi.dart';
 import 'categorynotifier.dart';
 import 'imagepicker.dart';

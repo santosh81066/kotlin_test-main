@@ -48,8 +48,8 @@ android {
 
     defaultConfig {
         applicationId "com.purohith.users"
-        minSdkVersion 34
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 31
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

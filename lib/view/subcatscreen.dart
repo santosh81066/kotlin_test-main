@@ -32,8 +32,8 @@ class _SubCatState extends ConsumerState<SubCat> {
 
   String bookButtonLabel = 'View details';
   String addresHintText = 'Please enter address1';
-   String description = 'Please enter description';
-    String altmobileNo = 'Please enter alt Mobile no';
+  String description = 'Please enter description';
+  String altmobileNo = 'Please enter alt Mobile no';
   String? selectedLocation;
 
   @override
@@ -66,7 +66,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                       keyBoardType: TextInputType.multiline,
                     ),
                   ),
-                   Padding(
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextWidget(
                       controller: address2,
@@ -74,10 +74,10 @@ class _SubCatState extends ConsumerState<SubCat> {
                       keyBoardType: TextInputType.multiline,
                     ),
                   ),
-                    Padding(
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextWidget(
-                      controller:altmobileno,
+                      controller: altmobileno,
                       hintText: altmobileNo,
                       keyBoardType: TextInputType.multiline,
                     ),
@@ -119,13 +119,15 @@ class _SubCatState extends ConsumerState<SubCat> {
                     onTap: isLoading
                         ? null
                         : () async {
-                            String addressText = "${address1.text}${address2.text}";
+                            String addressText =
+                                "${address1.text}${address2.text}";
                             BookingData newBooking = BookingData(
                               // Set properties for the new booking
-purohitCategory: productDetails['title'],
+                              purohitCategory: productDetails['title'],
                               time:
                                   '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
-                              address: addressText.trim(),
+                              address:
+                                  "address : ${addressText.trim()} description : ${address2.text.trim} alt mobile no : ${altmobileno.text.trim()}",
                               bookingStatus: 'w',
                               // ... other properties ...
                             );
@@ -284,6 +286,4 @@ purohitCategory: productDetails['title'],
       ],
     );
   }
-
-  
 }

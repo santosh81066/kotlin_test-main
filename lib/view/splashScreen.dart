@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
           )
         : Scaffold(
             body: Center(
-              child: Image.asset('assets/icon.png'),
+              child: Image.asset('assets/splash.png'),
             ),
           );
   }
