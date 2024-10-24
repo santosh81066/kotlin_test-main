@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +24,27 @@ class ProfileDetails extends ConsumerStatefulWidget {
 }
 
 class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
+  Stream<Map<String, dynamic>> combineStreams(
+      Stream<DatabaseEvent> stream1, Stream<DatabaseEvent> stream2) async* {
+    // Create stream controllers for both streams
+    final controller1 = StreamController<DatabaseEvent>();
+    final controller2 = StreamController<DatabaseEvent>();
+
+    // Listen to the streams and add data to controllers
+    stream1.listen((event) => controller1.add(event));
+    stream2.listen((event) => controller2.add(event));
+
+    // Combine the data from both streams
+    await for (var event1 in controller1.stream) {
+      await for (var event2 in controller2.stream) {
+        yield {
+          'usersSnapshot': event1,
+          'walletSnapshot': event2,
+        };
+      }
+    }
+  }
+
   void handleCallTap(
       BuildContext context, Data user, String productId, int amount) {
     initiateCall(context, ref, user, productId, amount);
@@ -76,6 +99,11 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     final category = categories.firstWhere(
       (cat) => cat.id == int.parse(productId),
     );
+    final firebaseUserId = FirebaseAuth.instance.currentUser?.uid;
+    final DatabaseReference firebaseRealtimeWalletRef =
+        FirebaseDatabase.instance.ref().child('wallet').child(firebaseUserId!);
+    final combinedStream = combineStreams(
+        firebaseRealtimeUsersRef.onValue, firebaseRealtimeWalletRef.onValue);
     //  final handleCallTap = arguments['handleCallTap'] as Function;
     print("ProfileDetails:${user.amount}");
     return Scaffold(
@@ -221,16 +249,21 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                 ),
                                 arguments['cattype'] == 'c'
                                     ? StreamBuilder(
-                                        stream:
-                                            firebaseRealtimeUsersRef.onValue,
+                                        stream: combinedStream,
                                         builder: (context, snapshot) {
                                           if (snapshot.connectionState ==
                                               ConnectionState.waiting) {
                                             return const CircularProgressIndicator();
                                           }
+                                          var combinedData = snapshot.data!;
+                                          var usersSnapshot =
+                                              combinedData['usersSnapshot'];
+                                          var walletSnapshot =
+                                              combinedData['walletSnapshot'];
+
                                           Map<dynamic, dynamic>? foundValue;
                                           Map<dynamic, dynamic> fbValues =
-                                              snapshot.data!.snapshot.value
+                                              usersSnapshot.snapshot.value
                                                   as Map<dynamic, dynamic>;
                                           for (var value in fbValues.values) {
                                             if (value['id'] == user.id) {
@@ -246,23 +279,64 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                               foundValue['isonline'] ?? false;
                                           bool incall =
                                               foundValue['inCall'] ?? false;
+                                          double walletAmount = 0.0;
+                                          if (firebaseUserId != null) {
+                                            Map<dynamic, dynamic> walletData =
+                                                walletSnapshot.snapshot.value
+                                                    as Map<dynamic, dynamic>;
+
+                                            walletAmount =
+                                                walletData['amount'] ?? 0;
+
+                                            print(
+                                                'Wallet data: ${walletSnapshot.snapshot.value}');
+                                          }
                                           if (!isOnline) {
-                                            return const ElevatedButton(
-                                                onPressed: null,
-                                                child: Text('Offline'));
+                                            Data customerCare = Data(
+                                                id: 168,
+                                                username: "customer care");
+                                            return Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    ElevatedButton(
+                                                        onPressed: () {
+                                                          handleCallTap(
+                                                              context,
+                                                              customerCare,
+                                                              productId,
+                                                              category.price!);
+                                                        },
+                                                        child: Text(
+                                                            'Call Custemor Care')),
+                                                    ElevatedButton(
+                                                        onPressed: null,
+                                                        child: Text('offline')),
+                                                  ],
+                                                ),
+                                                Text(
+                                                    'Purohith is offline if it\'s urgent please contact customer care ')
+                                              ],
+                                            );
                                           }
                                           if (incall) {
                                             return const ElevatedButton(
                                                 onPressed: null,
                                                 child: Text('In Call'));
                                           }
-                                          return Button(
-                                              buttonname: "Call Purohith",
-                                              width: double.infinity,
-                                              onTap: () {
-                                                handleCallTap(context, user,
-                                                    productId, category.price!);
-                                              });
+                                          return walletAmount > 0
+                                              ? Button(
+                                                  buttonname: "Call Purohith",
+                                                  width: double.infinity,
+                                                  onTap: () {
+                                                    handleCallTap(
+                                                        context,
+                                                        user,
+                                                        productId,
+                                                        category.price ==null? 0:category.price!);
+                                                  })
+                                              : Text(
+                                                  "Insuft balance");
                                         },
                                       )
                                     : Button(

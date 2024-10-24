@@ -50,6 +50,7 @@ class CallDurationWidget extends StatelessWidget {
           purohithId: purohithDetails.purohithId.toString(),
           bookings: newBooking);
     }
+    Navigator.pop(context);
   }
 
   static void startTimer(double callRate, BuildContext context,

@@ -24,7 +24,13 @@ class ZegeoCloudNotifier extends StateNotifier<Call> {
         onCallEnd: (event, defaultAction) async {
           CallDurationWidget.stopTimer(context, ref);
           getbooking.getBookingHistory();
-          Navigator.pop(context);
+          print(" onCallEnd stop timer:");
+          
+          await userRef.update({
+            'inCall': false,
+
+            // Add more fields if needed
+          });
         },
       ),
       invitationEvents: ZegoUIKitPrebuiltCallInvitationEvents(
@@ -36,9 +42,24 @@ class ZegeoCloudNotifier extends StateNotifier<Call> {
             // Add more fields if needed
           });
         },
-        onIncomingCallDeclineButtonPressed: () {
+        onIncomingCallDeclineButtonPressed: () async {
           CallDurationWidget.stopTimer(context, ref);
-          print("stop timer:");
+          print(" onIncomingCallDeclineButtonPressed stop timer:");
+          await userRef.update({
+            'inCall': false,
+
+            // Add more fields if needed
+          });
+        },
+        onOutgoingCallCancelButtonPressed: () async {
+          CallDurationWidget.stopTimer(context, ref);
+          print(" onOutgoingCallCancelButtonPressed stop timer:");
+          CallDurationWidget.stopTimer(context, ref);
+          await userRef.update({
+            'inCall': false,
+
+            // Add more fields if needed
+          });
         },
         onOutgoingCallAccepted: (String callID, ZegoCallUser calee) {
           CallDurationWidget.startTimer(state.callRate!, context, cattype, ref);

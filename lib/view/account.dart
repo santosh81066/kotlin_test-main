@@ -53,14 +53,16 @@ class _MyAccountState extends State<MyAccount> {
                     }
                   },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    userProfileData.data![0].username ?? '',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
+                userProfileData.data == null
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          userProfileData.data![0].username ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
               ],
             ),
             Padding(

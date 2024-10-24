@@ -200,7 +200,8 @@ class BookingNotifier extends StateNotifier<Bookings> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: const Text('Success'),
-                  content: const Text('Thank you for booking we will assign you purohith shortly in case emergemcy please contact customers service 7287868697'),
+                  content: const Text(
+                      'Thank you for booking we will assign you purohith shortly if it\'s urjent please contact customers service 9014709289'),
                   actions: [
                     ElevatedButton(
                       child: const Text('OK'),
