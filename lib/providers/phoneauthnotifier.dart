@@ -95,49 +95,48 @@ class PhoneAuthNotifier extends StateNotifier<PhoneAuthState> {
       ScaffoldMessengerState scaffoldKey) async {
     final prefs = await SharedPreferences.getInstance();
     String? verificationId = prefs.getString('verificationid');
-    final authState = ref.watch(authProvider);
+    // final authState = ref.watch(authProvider);
     final loadingState = ref.watch(loadingProvider.notifier);
+
     try {
       loadingState.state = true;
-
+      var user = auth.currentUser;
+      print("auth.currentUser: ${user.runtimeType}");
       AuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId!, smsCode: smsCode);
+      print("User verification id: $verificationId");
+      try {
+        await auth.signInWithCredential(credential).then((value) async {
+          print("User value after signInWithCredential: ${value.user}");
+          if (value.user != null) {
+            print("phone verification Sucessfull");
+            var user = auth.currentUser!;
 
-      await auth.signInWithCredential(credential).then((value) async {
-        if (value.user != null) {
-          var user = auth.currentUser!;
+            user.getIdToken().then((ftoken) async {
+              await prefs.setString('firebaseToken', ftoken!);
+            });
 
-          user.getIdToken().then((ftoken) async {
-            await prefs.setString('firebaseToken', ftoken!);
-          });
+            // FirebaseFirestore.instance
+            //     .collection('userdata')
+            //     .doc(value.user!.uid)
+            int response = await ref
+                .read(authProvider.notifier)
+                .registerUser(context, phoneNumber, ref);
+            //     .set({"mobileno": phoneNumber, "role": "u"});
 
-          // FirebaseFirestore.instance
-          //     .collection('userdata')
-          //     .doc(value.user!.uid)
-          int response = await ref
-              .read(authProvider.notifier)
-              .registerUser(context, phoneNumber, ref);
-          //     .set({"mobileno": phoneNumber, "role": "u"});
-
-          switch (response) {
-            case 400:
-              scaffoldKey.showSnackBar(SnackBar(
-                content: Text('${authState.messages}'),
-                duration: const Duration(seconds: 5),
-              ));
-              loadingState.state = false;
-              break;
-            case 201:
-              scaffoldKey.showSnackBar(SnackBar(
-                content: Text('${authState.messages}'),
-                duration: const Duration(seconds: 5),
-              ));
-
-              loadingState.state = false;
-              break;
+            switch (response) {
+              case 400:
+                loadingState.state = false;
+                break;
+              case 201:
+                loadingState.state = false;
+                break;
+            }
           }
-        }
-      });
+        });
+      } catch (e) {
+        print("Error in signInWithCredential: $e");
+      }
 
       loadingState.state = false;
     } catch (e) {

@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talk2purohith/providers/authnotifier.dart';
+import 'package:talk2purohith/providers/makecallnotifier.dart';
 
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../models/purohithusers.dart';
@@ -301,11 +303,23 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                   children: [
                                                     ElevatedButton(
                                                         onPressed: () {
-                                                          handleCallTap(
-                                                              context,
-                                                              customerCare,
-                                                              productId,
-                                                              category.price!);
+                                                          ref
+                                                              .read(
+                                                                  makeCallNotifierProvider
+                                                                      .notifier)
+                                                              .makeCallRequest(
+                                                                  ref
+                                                                      .read(
+                                                                          authProvider)
+                                                                      .mobileno
+                                                                      .toString(),
+                                                                  user.mobileno
+                                                                      .toString());
+                                                          // handleCallTap(
+                                                          //     context,
+                                                          //     customerCare,
+                                                          //     productId,
+                                                          //     category.price!);
                                                         },
                                                         child: Text(
                                                             'Call Custemor Care')),
@@ -329,14 +343,27 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                   buttonname: "Call Purohith",
                                                   width: double.infinity,
                                                   onTap: () {
-                                                    handleCallTap(
-                                                        context,
-                                                        user,
-                                                        productId,
-                                                        category.price ==null? 0:category.price!);
+                                                    ref
+                                                        .read(
+                                                            makeCallNotifierProvider
+                                                                .notifier)
+                                                        .makeCallRequest(
+                                                            ref
+                                                                .read(
+                                                                    authProvider)
+                                                                .mobileno
+                                                                .toString(),
+                                                            user.mobileno
+                                                                .toString());
+                                                    // handleCallTap(
+                                                    //     context,
+                                                    //     user,
+                                                    //     productId,
+                                                    //     category.price == null
+                                                    //         ? 0
+                                                    //         : category.price!);
                                                   })
-                                              : Text(
-                                                  "Insuft balance");
+                                              : Text("Insuft balance");
                                         },
                                       )
                                     : Button(

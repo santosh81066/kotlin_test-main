@@ -251,7 +251,8 @@ class _SubCatState extends ConsumerState<SubCat> {
                       "${PurohitApi().baseUrl}${PurohitApi().purohithDp}${user.id}",
                   'amount': '₹ ${user.getAmountWithPercentageIncrease()}',
                   'cattype': cattype,
-                  'userName': user.username
+                  'userName': user.username,
+                  'mobileNo': user.mobileno
                 });
               }),
         ),

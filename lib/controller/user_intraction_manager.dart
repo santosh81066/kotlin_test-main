@@ -1,16 +1,10 @@
-import 'dart:convert';
-import 'dart:io' as platform;
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/retry.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 import '../providers/authnotifier.dart';
 

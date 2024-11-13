@@ -333,6 +333,7 @@ class Categories extends ConsumerWidget {
                   'cattype': cattype,
                   'user': user,
                   'productId': productId,
+                  'mobileNo': user.mobileno
                 });
               },
               child: Text("View details"),
