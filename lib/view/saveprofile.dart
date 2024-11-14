@@ -264,12 +264,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                                               ElevatedButton(
                                                 child: const Text('OK'),
                                                 onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pushNamedAndRemoveUntil(
-                                                          'wellcome',
-                                                          (Route<dynamic>
-                                                                  route) =>
-                                                              false);
+                                                  Navigator.of(context).pop();
                                                 },
                                               ),
                                             ],
