@@ -251,7 +251,7 @@ class _MyAppState extends State<MyApp> {
                   return const SaveProfile();
                 },
                 // 'registerotp': (context) => RegisterVerifyOtp(
-                //       scaffoldMessengerKey: scaffoldMessengerKey,
+                //       scaffoldMessengerKey: scaffoldMessengerKey
                 //     ),
                 'events': (context) {
                   return const Events();
