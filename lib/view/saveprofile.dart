@@ -49,7 +49,6 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
 
   @override
   Widget build(BuildContext context) {
-    print("build save profile");
     final userProfileData = ref.watch(userProfileDataProvider);
     final userInteractionManager = ref.watch(userInteractionManagerProvider);
 
@@ -138,7 +137,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                       },
                     );
                   },
-                  child: Consumer(builder: (con,ref,child){return  FutureBuilder<File?>(
+                  child: FutureBuilder<File?>(
                     future: ref
                         .read(userProfileDataProvider.notifier)
                         .getImageFile(context),
@@ -165,9 +164,6 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                         );
                       }
                     },
-                  );
-                    },
-
                   ),
                 ),
                 const SizedBox(height: 16.0),
