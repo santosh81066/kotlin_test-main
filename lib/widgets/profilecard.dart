@@ -7,7 +7,7 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return const Card(
       child: Column(
         children: [],
       ),

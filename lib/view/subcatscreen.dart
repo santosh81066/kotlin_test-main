@@ -6,7 +6,6 @@ import '../models/booking.dart';
 import '../models/purohithusers.dart';
 import '../providers/authnotifier.dart';
 import '../providers/bookingnotifier.dart';
-import '../providers/categorynotifier.dart';
 import '../providers/datetimeprovider.dart';
 import '../providers/loader.dart';
 import '../providers/locationstatenotifier.dart';
@@ -116,7 +115,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                     onTap: isLoading
                         ? null
                         : () async {
-                            String addressText = "${address2.text.trim()}";
+                            String addressText = address2.text.trim();
                             // ${address1.text.trim()}
                             BookingData newBooking = BookingData(
                               // Set properties for the new booking
@@ -124,7 +123,7 @@ class _SubCatState extends ConsumerState<SubCat> {
                               time:
                                   '${ref.read(dateAndTimeProvider).date} ${ref.read(dateAndTimeProvider).time}',
                               address:
-                                  "address: ${addressText} description: ${address2.text.trim()} alt mobile no: ${altmobileno.text.trim()}",
+                                  "address: $addressText description: ${address2.text.trim()} alt mobile no: ${altmobileno.text.trim()}",
                               bookingStatus: 'w',
                               // ... other properties ...
                             );

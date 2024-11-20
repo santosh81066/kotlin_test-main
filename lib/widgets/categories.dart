@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/authnotifier.dart';
-import '../providers/userprofiledatanotifier.dart';
 import '/models/categories.dart';
 import '/models/purohithusers.dart' as purohith;
 import '/providers/carouselstatenotifier.dart';
@@ -14,10 +13,10 @@ import '../utils/purohitapi.dart';
 
 class Categories extends ConsumerWidget {
   const Categories({
-    Key? key,
+    super.key,
     required this.call,
     required this.images,
-  }) : super(key: key);
+  });
 
   final List<Data> call;
   final List<carousel.Data> images;
@@ -46,7 +45,7 @@ class Categories extends ConsumerWidget {
       // Data is available
       users = purohithState.data!;
     } else {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     var top = {for (var obj in users) obj.id: obj};
@@ -62,7 +61,7 @@ class Categories extends ConsumerWidget {
               final images =
                   ref.watch(carouselStateProvider).carousel?.data ?? [];
               return images.isEmpty
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : CarouselSlider(
                       items: images.map((data) {
                         return Container(
@@ -98,7 +97,7 @@ class Categories extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   "Purohithlu On Demand",
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
@@ -127,18 +126,18 @@ class Categories extends ConsumerWidget {
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Consumer(builder: (context, ref, child) {
             var categories = ref.watch(categoryProvider);
             return Container(
-              margin: EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Categories",
+                  const Text("Categories",
                       style: TextStyle(fontWeight: FontWeight.w600)),
                   Consumer(builder: (context, ref, child) {
                     var categories = ref.watch(categoryProvider);
@@ -192,17 +191,17 @@ class Categories extends ConsumerWidget {
               ),
             );
           }),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Consumer(builder: (context, ref, child) {
             return Container(
-              margin: EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Trending Pooja's",
+                  const Text("Trending Pooja's",
                       style: TextStyle(fontWeight: FontWeight.w600)),
                   Consumer(builder: (context, ref, child) {
                     return Column(
@@ -226,7 +225,7 @@ class Categories extends ConsumerWidget {
                                           'price': subcategory.price,
                                         });
                                   },
-                                  child: Container(
+                                  child: SizedBox(
                                     width: 100,
                                     child: Column(
                                       children: [
@@ -235,14 +234,14 @@ class Categories extends ConsumerWidget {
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(4),
-                                              side: BorderSide(
+                                              side: const BorderSide(
                                                   color: Color.fromARGB(
                                                       255, 96, 95, 95),
                                                   width: 0.8)),
                                           child: Container(
                                             width: 100,
                                             height: 130,
-                                            padding: EdgeInsets.all(8),
+                                            padding: const EdgeInsets.all(8),
                                             child: AspectRatio(
                                               aspectRatio: 1,
                                               child: CircleAvatar(
@@ -287,8 +286,8 @@ class Categories extends ConsumerWidget {
       color: Colors.white,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
-          side: BorderSide(color: Color.fromARGB(255, 96, 95, 95), width: 0.8)),
-      child: Container(
+          side: const BorderSide(color: Color.fromARGB(255, 96, 95, 95), width: 0.8)),
+      child: SizedBox(
         width: 250,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -311,10 +310,10 @@ class Categories extends ConsumerWidget {
             ),
             Text(
               user.username ?? "",
-              style: TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             for (var cat in category) Text("(${cat.id})"),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
@@ -336,10 +335,10 @@ class Categories extends ConsumerWidget {
                   'mobileNo': user.mobileno
                 });
               },
-              child: Text("View details"),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF5C662),
+                  backgroundColor: const Color(0xFFF5C662),
                   foregroundColor: Colors.black),
+              child: const Text("View details"),
             )
           ],
         ),
@@ -354,12 +353,12 @@ class Categories extends ConsumerWidget {
           color: Colors.white,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
-              side: BorderSide(
+              side: const BorderSide(
                   color: Color.fromARGB(255, 96, 95, 95), width: 0.8)),
           child: Container(
             width: 100,
             height: 130,
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             child: CircleAvatar(
               backgroundColor: Colors.white,
               backgroundImage: categori.xfile != null

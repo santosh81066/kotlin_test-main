@@ -5,6 +5,7 @@ class RowItems extends StatelessWidget {
   final IconData icon;
   final String text;
 
+  @override
   Widget build(BuildContext context) {
     Size screensize = MediaQuery.of(context).size;
     double screenWidth = screensize.width;
@@ -20,7 +21,7 @@ class RowItems extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             text,
-            style: TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 10),
           )
         ],
       ),

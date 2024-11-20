@@ -73,7 +73,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
           'Authorization': token!,
         },
       );
-      print('${response.body}');
+      print(response.body);
       if (response.statusCode == 200) {
         Map<String, dynamic> categoryTypes = json.decode(response.body);
         // print('all categories: ${categoryTypes['data']['price']}');

@@ -12,7 +12,7 @@ class Button extends StatelessWidget {
   final double? buttonLeftMargin;
   final double? circularRadius;
   const Button(
-      {Key? key,
+      {super.key,
       this.buttonBottomMargin = 15,
       this.buttonname,
       this.onTap,
@@ -22,8 +22,7 @@ class Button extends StatelessWidget {
       this.buttonTopMargin = 15,
       this.buttonLeftMargin = 15,
       this.buttonRightMargin = 15,
-      this.circularRadius = 30})
-      : super(key: key);
+      this.circularRadius = 30});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +44,7 @@ class Button extends StatelessWidget {
       // ),
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFF5C662),
+              backgroundColor: const Color(0xFFF5C662),
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(3))),
@@ -55,7 +54,7 @@ class Button extends StatelessWidget {
               buttonname!,
               textAlign: TextAlign.center,
             ),
-            trailing: Icon(Icons.arrow_forward_sharp),
+            trailing: const Icon(Icons.arrow_forward_sharp),
           )),
     );
   }

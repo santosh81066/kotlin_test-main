@@ -14,7 +14,7 @@ class BottemNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Color.fromARGB(223, 255, 253, 253),
+      backgroundColor: const Color.fromARGB(223, 255, 253, 253),
       type: BottomNavigationBarType.fixed,
       items: [
         BottomNavigationBarItem(
@@ -113,7 +113,7 @@ class BottemNavigationBar extends StatelessWidget {
       unselectedItemColor: const Color.fromARGB(255, 111, 109, 109),
       currentIndex: selectedIndex,
       useLegacyColorScheme: true,
-      selectedLabelStyle: TextStyle(
+      selectedLabelStyle: const TextStyle(
           decoration: TextDecoration.underline, decorationColor: Colors.orange),
       onTap: onPageChanged,
     );

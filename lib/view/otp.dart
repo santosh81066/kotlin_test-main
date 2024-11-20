@@ -40,7 +40,7 @@ class _OtpState extends State<Otp> {
         constraints: BoxConstraints(minHeight: screenSize.height * 0.95),
         child: IntrinsicHeight(
             child: Center(
-          child: Container(
+          child: SizedBox(
             width: screenSize.width * 0.95,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

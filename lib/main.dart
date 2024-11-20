@@ -14,7 +14,6 @@ import '/view/eventform.dart';
 import '/view/events.dart';
 import '/view/otp.dart';
 import '/view/profiledetails.dart';
-import '/view/register_otp.dart';
 import '/view/registeruser.dart';
 import '/view/saveprofile.dart';
 import '/view/splashScreen.dart';
@@ -211,7 +210,7 @@ class _MyAppState extends State<MyApp> {
                       if (authState.refreshToken != null) {
                         return authState.profile
                             ? WellcomeScreen(globalKey: GlobalKey())
-                            : SaveProfile();
+                            : const SaveProfile();
                       }
 
                       // If the user is not authenticated, attempt auto-login
@@ -226,7 +225,7 @@ class _MyAppState extends State<MyApp> {
                             return snapshot.data == true
                                 ? (authState.profile
                                     ? WellcomeScreen(globalKey: GlobalKey())
-                                    : SaveProfile())
+                                    : const SaveProfile())
                                 : Otp(
                                     scaffoldMessengerKey: scaffoldMessengerKey);
                           }

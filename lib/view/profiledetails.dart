@@ -115,7 +115,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
             constraints: BoxConstraints(minHeight: screenSize.height * 0.9),
             child: IntrinsicHeight(
               child: Center(
-                child: Container(
+                child: SizedBox(
                   width: screenSize.width * 0.95,
                   child: Column(
                     children: [
@@ -141,7 +141,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                   ),
                                   Text(
                                     user.username!,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 19,
                                         fontWeight: FontWeight.w600),
                                     textAlign: TextAlign.center,
@@ -284,18 +284,16 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                           bool incall =
                                               foundValue['inCall'] ?? false;
                                           double walletAmount = 0.0;
-                                          if (firebaseUserId != null) {
-                                            Map<dynamic, dynamic> walletData =
-                                                walletSnapshot.snapshot.value
-                                                as Map<dynamic, dynamic>? ?? {};
+                                          Map<dynamic, dynamic> walletData =
+                                              walletSnapshot.snapshot.value
+                                              as Map<dynamic, dynamic>? ?? {};
 
-                                            walletAmount =
-                                                walletData['amount'] ?? 0;
+                                          walletAmount =
+                                              walletData['amount'] ?? 0;
 
-                                            print(
-                                                'Wallet data: ${walletSnapshot.snapshot.value}');
-                                          }
-                                          if (!isOnline) {
+                                          print(
+                                              'Wallet data: ${walletSnapshot.snapshot.value}');
+                                                                                  if (!isOnline) {
                                             Data customerCare = Data(
                                                 id: 168,
                                                 username: "customer care");
@@ -323,14 +321,14 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                           //     productId,
                                                           //     category.price!);
                                                         },
-                                                        child: Text(
+                                                        child: const Text(
                                                             'Call Custemor Care')),
-                                                    ElevatedButton(
+                                                    const ElevatedButton(
                                                         onPressed: null,
                                                         child: Text('offline')),
                                                   ],
                                                 ),
-                                                Text(
+                                                const Text(
                                                     'Purohith is offline if it\'s urgent please contact customer care ')
                                               ],
                                             );
@@ -365,7 +363,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                     //         ? 0
                                                     //         : category.price!);
                                                   })
-                                              : Text("Insuft balance");
+                                              : const Text("Insuft balance");
                                         },
                                       )
                                     : Button(

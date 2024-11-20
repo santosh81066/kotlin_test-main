@@ -13,38 +13,38 @@ class _CustomDialogBoxState extends State<CustomDialogBox> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               "Fill these details before  booking a purohit for your special occasion!",
               style: TextStyle(
                 fontWeight: FontWeight.w400,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
-            TextField(
+            const TextField(
               decoration: InputDecoration(
                   hintText: "Enter Your Adresss",
                   labelText: "enter Your Adress"),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text("Conform Booking"),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFF5C662),
+                    backgroundColor: const Color(0xFFF5C662),
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(3))))
+                        borderRadius: BorderRadius.circular(3))),
+                child: const Text("Conform Booking"))
           ],
         ),
       ),

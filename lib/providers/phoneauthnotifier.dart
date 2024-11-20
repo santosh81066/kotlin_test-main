@@ -177,7 +177,7 @@ class PhoneAuthNotifier extends StateNotifier<PhoneAuthState> {
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },

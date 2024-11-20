@@ -16,7 +16,7 @@ import '../widgets/category_grid.dart';
 import '../widgets/user_list.dart';
 
 class CatScreen extends ConsumerStatefulWidget {
-  const CatScreen({Key? key}) : super(key: key);
+  const CatScreen({super.key});
 
   @override
   ConsumerState<CatScreen> createState() => _CatScreenState();
@@ -107,7 +107,7 @@ class _CatScreenState extends ConsumerState<CatScreen> {
 
                   // ... Use filteredUsers for your UI
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 return UserList(

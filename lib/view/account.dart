@@ -96,8 +96,8 @@ class _MyAccountState extends State<MyAccount> {
                   onTap: () {
                     Navigator.of(context).pushNamed('register');
                   },
-                  leading: Icon(Icons.handshake, color: Color(0xFFF5C662)),
-                  title: Padding(
+                  leading: const Icon(Icons.handshake, color: Color(0xFFF5C662)),
+                  title: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Become A Purohith'),
                   ),
@@ -116,8 +116,8 @@ class _MyAccountState extends State<MyAccount> {
                     Navigator.pushNamed(context, "wallet");
                   },
                   leading:
-                      Icon(Icons.person_outlined, color: Color(0xFFF5C662)),
-                  title: Padding(
+                      const Icon(Icons.person_outlined, color: Color(0xFFF5C662)),
+                  title: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Reacharge Your Wallet'),
                   ),
@@ -159,8 +159,8 @@ class _MyAccountState extends State<MyAccount> {
                             .pushNamedAndRemoveUntil(
                                 '/', (Route<dynamic> route) => false));
                   },
-                  leading: Icon(Icons.exit_to_app, color: Color(0xFFF5C662)),
-                  title: Padding(
+                  leading: const Icon(Icons.exit_to_app, color: Color(0xFFF5C662)),
+                  title: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Logout'),
                   ),

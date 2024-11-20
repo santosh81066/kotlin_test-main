@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:http_parser/http_parser.dart' as parser;
 import 'package:http/http.dart' as http;
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../models/registeraspurohith.dart';
 import '../utils/purohitapi.dart';
 import 'categorynotifier.dart';
@@ -99,7 +98,7 @@ class Registeraspurohith extends StateNotifier<RegisterAsPurohith> {
           content: Text(state.messages.toString()),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },

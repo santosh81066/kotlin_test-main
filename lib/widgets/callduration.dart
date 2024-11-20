@@ -10,7 +10,7 @@ import '../providers/bookingnotifier.dart';
 import '../providers/zegeocloudprovider.dart';
 
 class CallDurationWidget extends StatelessWidget {
-  const CallDurationWidget({Key? key}) : super(key: key);
+  const CallDurationWidget({super.key});
 
   static DateTime callStartTime = DateTime.now();
   static ValueNotifier<DateTime> timeListenable =

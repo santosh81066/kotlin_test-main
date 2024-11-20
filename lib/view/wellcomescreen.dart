@@ -8,7 +8,6 @@ import '../providers/eventprovider.dart';
 import '../providers/locationstatenotifier.dart';
 import '../providers/purohithnotifier.dart';
 import '../providers/userprofiledatanotifier.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/appbar.dart';
 import '../widgets/bottemnavigationbar.dart';
 import '../widgets/categories.dart';

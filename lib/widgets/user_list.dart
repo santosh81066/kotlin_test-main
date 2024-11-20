@@ -7,7 +7,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/categorynotifier.dart';
 import '/providers/authnotifier.dart';
-import '/providers/notificationprovider.dart';
 import '/providers/userprofiledatanotifier.dart';
 import '/providers/zegeocloudprovider.dart';
 
@@ -29,7 +28,7 @@ class UserList extends ConsumerWidget {
   final String cattype;
 
   const UserList(
-      {Key? key,
+      {super.key,
       required this.users,
       required this.firebaseRealtimeUsersRef,
       required this.firebaseRealtimeWalletRef,
@@ -37,8 +36,7 @@ class UserList extends ConsumerWidget {
       required this.productId,
       required this.catname,
       required this.billingMode,
-      required this.cattype})
-      : super(key: key);
+      required this.cattype});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -136,12 +134,12 @@ class UserList extends ConsumerWidget {
                               child: Text(
                                 '₹ ${category.price ?? 0}',
                                 softWrap: true,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
                         ),
-                        Divider(
+                        const Divider(
                           color: Colors.black,
                         ),
                         Row(

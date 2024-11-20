@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TextWidget extends StatefulWidget {
   const TextWidget({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     this.ofsecuretext,
@@ -10,7 +10,7 @@ class TextWidget extends StatefulWidget {
     this.keyBoardType,
     this.onTap,
     this.onTextChanged, // Add this line
-  }) : super(key: key);
+  });
 
   final TextEditingController controller;
   final String? hintText;

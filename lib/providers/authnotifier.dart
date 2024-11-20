@@ -9,10 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/authstate.dart';
 import '../utils/purohitapi.dart';
-import 'categorynotifier.dart';
-import 'imagepicker.dart';
-import 'loader.dart';
-import 'locationstatenotifier.dart';
 import 'userprofiledatanotifier.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {

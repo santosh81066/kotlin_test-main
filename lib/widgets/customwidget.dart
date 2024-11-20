@@ -5,10 +5,10 @@ class CustomCardWidget extends StatelessWidget {
   final String title;
 
   const CustomCardWidget({
-    Key? key,
+    super.key,
     required this.image,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

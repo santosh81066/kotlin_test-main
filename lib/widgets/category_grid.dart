@@ -7,8 +7,7 @@ class CategoryGrid extends StatelessWidget {
   final List<SubCategory> subcat;
   final String cattype;
 
-  const CategoryGrid({Key? key, required this.subcat, required this.cattype})
-      : super(key: key);
+  const CategoryGrid({super.key, required this.subcat, required this.cattype});
 
   @override
   Widget build(BuildContext context) {

@@ -93,6 +93,6 @@ class Data {
     if (_originalAmount == null || percentage == null) {
       return amount;
     }
-    return (_originalAmount! * (1 + percentage! / 100)).toInt();
+    return (_originalAmount * (1 + percentage! / 100)).toInt();
   }
 }

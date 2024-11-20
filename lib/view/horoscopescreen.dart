@@ -10,8 +10,8 @@ class HoroscopeList extends StatefulWidget {
   const HoroscopeList({
     this.title,
     required this.onTitleChanged,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<HoroscopeList> createState() => _HoroscopeListState();

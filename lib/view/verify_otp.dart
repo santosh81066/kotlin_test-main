@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -77,7 +76,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
             constraints: BoxConstraints(minHeight: screenSize.height * 0.9),
             child: IntrinsicHeight(
               child: Center(
-                child: Container(
+                child: SizedBox(
                   width: screenSize.width * 0.95,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -97,7 +96,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
                       ),
                       Text(
                         "OTP send to ${mobileno.toString()}",
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                       Padding(
@@ -113,9 +112,9 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
                           cursorWidth: 1,
                           cursorColor: Colors.black,
                           pinTheme: PinTheme(
-                            activeColor: Color.fromARGB(255, 113, 112, 112),
-                            selectedColor: Color.fromARGB(255, 113, 112, 112),
-                            inactiveColor: Color.fromARGB(255, 113, 112, 112),
+                            activeColor: const Color.fromARGB(255, 113, 112, 112),
+                            selectedColor: const Color.fromARGB(255, 113, 112, 112),
+                            inactiveColor: const Color.fromARGB(255, 113, 112, 112),
                             shape: PinCodeFieldShape.box,
                             fieldWidth: MediaQuery.of(context).size.width / 8,
                             borderRadius: BorderRadius.circular(4),
@@ -142,7 +141,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
                             return phoneAuthState.wait == true
                                 ? Column(
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Resend OTP",
                                         style: TextStyle(
                                             color: Colors.grey,
@@ -153,7 +152,7 @@ class _VerifyOtpState extends ConsumerState<VerifyOtp> with CodeAutoFill {
                                       ),
                                       Text(
                                         "Available in ${phoneAuthState.countdown}s",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: Colors.black,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600),
