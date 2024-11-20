@@ -249,10 +249,12 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                     style: TextStyle(fontSize: 14),
                                   ),
                                 ),
+
                                 arguments['cattype'] == 'c'
                                     ? StreamBuilder(
                                         stream: combinedStream,
                                         builder: (context, snapshot) {
+
                                           if (snapshot.connectionState ==
                                               ConnectionState.waiting) {
                                             return const CircularProgressIndicator();
@@ -270,7 +272,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                           for (var value in fbValues.values) {
                                             if (value['id'] == user.id) {
                                               foundValue = value
-                                                  as Map<dynamic, dynamic>;
+                                              as Map<dynamic, dynamic>? ?? {};
                                               break;
                                             }
                                           }
@@ -285,7 +287,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                           if (firebaseUserId != null) {
                                             Map<dynamic, dynamic> walletData =
                                                 walletSnapshot.snapshot.value
-                                                    as Map<dynamic, dynamic>;
+                                                as Map<dynamic, dynamic>? ?? {};
 
                                             walletAmount =
                                                 walletData['amount'] ?? 0;

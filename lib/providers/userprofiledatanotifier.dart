@@ -191,6 +191,7 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
       print("update response:$jsonResponse ${response.statusCode}");
       if (response.statusCode == 200) {
         prefs.setBool('profile', true);
+
       }
 
       return jsonResponse["success"];
