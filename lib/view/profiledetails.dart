@@ -86,6 +86,62 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     //       isVideoCall: false,
     //     );
   }
+  void showWaitlistDialog(BuildContext context, String username, String purohithName) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: EdgeInsets.all(16),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Connecting To Purohith!",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.yellow[700],
+                    backgroundImage: const NetworkImage(
+                      'https://via.placeholder.com/50', // Placeholder URL
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(username),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Text(
+                "You will receive a Call request when the purohith is ready",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Close"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +370,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                                       .mobileno
                                                                       .toString(),
                                                                   user.mobileno
-                                                                      .toString());
+                                                                      .toString(),custemor: true,);
                                                           // handleCallTap(
                                                           //     context,
                                                           //     customerCare,
@@ -343,6 +399,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                   buttonname: "Call Purohith",
                                                   width: double.infinity,
                                                   onTap: () {
+
                                                     ref
                                                         .read(
                                                             makeCallNotifierProvider
@@ -355,6 +412,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                                 .toString(),
                                                             user.mobileno
                                                                 .toString());
+                                                    showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
                                                     // handleCallTap(
                                                     //     context,
                                                     //     user,

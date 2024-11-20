@@ -9,7 +9,7 @@ class ContactUsScreen extends StatefulWidget {
 }
 
 class _ContactUsScreenState extends State<ContactUsScreen> {
-  final String mobileNo = "+916303344050";
+  final String mobileNo = "+919014709289";
 
   final String emailId = "info.purohiithulu@gmail.com";
   Future<void> makePhoneCall(String phoneNumber) async {
