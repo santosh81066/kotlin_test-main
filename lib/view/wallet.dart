@@ -329,7 +329,7 @@ class _WalletState extends State<Wallet> {
 
   void openCheckout() {
     var options = {
-      'key': 'rzp_live_C8yj1yxpYihWIJ',
+      'key': 'rzp_live_m3aaoXRpucS2SW',
       'amount': num.parse(amt.text) * 100,
       'name': 'Purohithulu',
       'description': 'wallet',

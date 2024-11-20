@@ -288,8 +288,8 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                               walletSnapshot.snapshot.value
                                               as Map<dynamic, dynamic>? ?? {};
 
-                                          walletAmount =
-                                              walletData['amount'] ?? 0;
+                                          walletAmount = (walletData['amount'] ?? 0).toDouble();
+
 
                                           print(
                                               'Wallet data: ${walletSnapshot.snapshot.value}');
