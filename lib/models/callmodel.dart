@@ -1,8 +1,8 @@
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class Call {
-  final double amount;
-  final double minutes;
+  final int amount;
+  final int minutes;
   final double? callRate;
   final int? ctypeId;
   final int? purohithId;
@@ -18,8 +18,8 @@ class Call {
       : zegoController = controller ?? ZegoUIKitPrebuiltCallController();
 
   Call copyWith(
-      {double? amount,
-      double? minutes,
+      {int? amount,
+      int? minutes,
       double? callRate,
       int? ctypeId,
       int? purohithId,

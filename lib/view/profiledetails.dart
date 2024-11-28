@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talk2purohith/providers/authnotifier.dart';
 import 'package:talk2purohith/providers/makecallnotifier.dart';
 
@@ -51,9 +52,19 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
       BuildContext context, Data user, String productId, int amount) {
     initiateCall(context, ref, user, productId, amount);
   }
-
+@override
+  // void initState() async {
+  // final prefs = await SharedPreferences.getInstance();
+  //   var callId=  prefs.getString('callId');
+  //   print('callId $callId form in it state' );
+  //   // TODO: implement initState
+  //   super.initState();
+  //   ref.read(makeCallNotifierProvider.notifier).getCallReport(callId.toString(), 50);
+  //
+  // }
   void initiateCall(BuildContext context, WidgetRef ref, Data user,
       String productId, int amount) {
+
     print('initiate call');
     ref
         .read(zegeoCloudNotifierProvider.notifier)
@@ -64,29 +75,34 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
         .map((u) {
       return ZegoCallUser(u.id, user.username!);
     }).toList();
+
+    // Send the call invitation and handle response
     ZegoUIKitPrebuiltCallInvitationService().send(
-        resourceID: "purohithulu",
-        invitees: invites,
-        isVideoCall: false,
-        customData: json.encode({
-          "amount": amount,
-          "userid": ref.read(userProfileDataProvider).data![0].id,
-          "catid": productId
-        }),
-        notificationTitle: user.username,
-        notificationMessage: "You got an incomming call");
-    // ref.read(zegeoCloudNotifierProvider).zegoController.sendCallInvitation(
-    //       notificationTitle: "catname",
-    //       invitees: invites,
-    // customData: json.encode({
-    //   "amount": user.amount ?? 0.0,
-    //   "userid": ref.read(userProfileDataProvider).data![0].id,
-    //   "catid": productId
-    // }),
-    //       isVideoCall: false,
-    //     );
+      resourceID: "purohithulu",
+      invitees: invites,
+      isVideoCall: false,
+      customData: json.encode({
+        "amount": amount,
+        "userid": ref.read(userProfileDataProvider).data![0].id,
+        "catid": productId
+      }),
+      notificationTitle: user.username,
+      notificationMessage: "You got an incoming call",
+    ).then((success) {
+      // If the call request was successful, show the waitlist dialog
+      if (success) {
+        showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
+      } else {
+        // If the call request failed, show the call failed dialog
+        showCallFailedDialog(context);
+      }
+    }).catchError((error) {
+      // Handle any errors during the call request
+      showCallFailedDialog(context);
+    });
   }
-  void showWaitlistDialog(BuildContext context, String username, String purohithName) {
+
+  void showCallFailedDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -94,18 +110,71 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          contentPadding: EdgeInsets.all(16),
+          contentPadding: const EdgeInsets.all(16),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
+                "Call Failed",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Icon(
+                Icons.error,
+                size: 50,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "The call could not be connected. Please try again later.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text("Close"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showWaitlistDialog(BuildContext context, String username, String purohithName) {
+    // Timer to close the dialog after 60 seconds
+    Timer(Duration(seconds: 60), () {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: const EdgeInsets.all(16),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
                 "Connecting To Purohith!",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -123,24 +192,32 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "You will receive a Call request when the purohith is ready",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
+                  // Manually close the dialog when the button is pressed
                   Navigator.of(context).pop();
                 },
-                child: Text("Close"),
+                child: const Text("Close"),
               ),
             ],
           ),
         );
       },
     );
+  }
+
+  // Call this function when the Purohith answers the call
+  void closeDialog(BuildContext context) {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -151,15 +228,15 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     final user = arguments['user'] as Data;
     final productId = arguments['productId'] as String;
     final DatabaseReference firebaseRealtimeUsersRef =
-        FirebaseDatabase.instance.ref().child('presence');
+    FirebaseDatabase.instance.ref().child('presence');
     final categoryNotifier = ref.read(categoryProvider.notifier);
     final categories = categoryNotifier.getFilteredCategories("e");
     final category = categories.firstWhere(
-      (cat) => cat.id == int.parse(productId),
+          (cat) => cat.id == int.parse(productId),
     );
     final firebaseUserId = FirebaseAuth.instance.currentUser?.uid;
     final DatabaseReference firebaseRealtimeWalletRef =
-        FirebaseDatabase.instance.ref().child('wallet').child(firebaseUserId!);
+    FirebaseDatabase.instance.ref().child('wallet').child(firebaseUserId!);
     final combinedStream = combineStreams(
         firebaseRealtimeUsersRef.onValue, firebaseRealtimeWalletRef.onValue);
     //  final handleCallTap = arguments['handleCallTap'] as Function;
@@ -210,7 +287,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                   ),
                                   const Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       RowItems(
                                           icon: Icons.star, text: "4.8(1494)"),
@@ -246,7 +323,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                     alignment: Alignment.center,
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text(
                                           "Consulation Fee",
@@ -308,132 +385,120 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
 
                                 arguments['cattype'] == 'c'
                                     ? StreamBuilder(
-                                        stream: combinedStream,
-                                        builder: (context, snapshot) {
+                                  stream: combinedStream,
+                                  builder: (context, snapshot) {
 
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const CircularProgressIndicator();
-                                          }
-                                          var combinedData = snapshot.data!;
-                                          var usersSnapshot =
-                                              combinedData['usersSnapshot'];
-                                          var walletSnapshot =
-                                              combinedData['walletSnapshot'];
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
+                                    }
+                                    var combinedData = snapshot.data!;
+                                    var usersSnapshot =
+                                    combinedData['usersSnapshot'];
+                                    var walletSnapshot =
+                                    combinedData['walletSnapshot'];
 
-                                          Map<dynamic, dynamic>? foundValue;
-                                          Map<dynamic, dynamic> fbValues =
-                                              usersSnapshot.snapshot.value
-                                                  as Map<dynamic, dynamic>;
-                                          for (var value in fbValues.values) {
-                                            if (value['id'] == user.id) {
-                                              foundValue = value
-                                              as Map<dynamic, dynamic>? ?? {};
-                                              break;
-                                            }
-                                          }
-                                          if (foundValue == null) {
-                                            return const SizedBox.shrink();
-                                          }
-                                          bool isOnline =
-                                              foundValue['isonline'] ?? false;
-                                          bool incall =
-                                              foundValue['inCall'] ?? false;
-                                          double walletAmount = 0.0;
-                                          Map<dynamic, dynamic> walletData =
-                                              walletSnapshot.snapshot.value
-                                              as Map<dynamic, dynamic>? ?? {};
+                                    Map<dynamic, dynamic>? foundValue;
+                                    Map<dynamic, dynamic> fbValues =
+                                    usersSnapshot.snapshot.value
+                                    as Map<dynamic, dynamic>;
+                                    for (var value in fbValues.values) {
+                                      if (value['id'] == user.id) {
+                                        foundValue = value
+                                        as Map<dynamic, dynamic>? ?? {};
+                                        break;
+                                      }
+                                    }
+                                    if (foundValue == null) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    bool isOnline =
+                                        foundValue['isonline'] ?? false;
+                                    bool incall =
+                                        foundValue['inCall'] ?? false;
+                                    double walletAmount = 0.0;
+                                    Map<dynamic, dynamic> walletData =
+                                        walletSnapshot.snapshot.value
+                                        as Map<dynamic, dynamic>? ?? {};
 
-                                          walletAmount = (walletData['amount'] ?? 0).toDouble();
+                                    walletAmount = (walletData['amount'] ?? 0).toDouble();
 
 
-                                          print(
-                                              'Wallet data: ${walletSnapshot.snapshot.value}');
-                                                                                  if (!isOnline) {
-                                            Data customerCare = Data(
-                                                id: 168,
-                                                username: "customer care");
-                                            return Column(
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    ElevatedButton(
-                                                        onPressed: () {
-                                                          ref
-                                                              .read(
-                                                                  makeCallNotifierProvider
-                                                                      .notifier)
-                                                              .makeCallRequest(
-                                                                  ref
-                                                                      .read(
-                                                                          authProvider)
-                                                                      .mobileno
-                                                                      .toString(),
-                                                                  user.mobileno
-                                                                      .toString(),custemor: true,);
-                                                          // handleCallTap(
-                                                          //     context,
-                                                          //     customerCare,
-                                                          //     productId,
-                                                          //     category.price!);
-                                                        },
-                                                        child: const Text(
-                                                            'Call Custemor Care')),
-                                                    const ElevatedButton(
-                                                        onPressed: null,
-                                                        child: Text('offline')),
-                                                  ],
-                                                ),
-                                                const Text(
-                                                    'Purohith is offline if it\'s urgent please contact customer care ')
-                                              ],
-                                            );
-                                          }
-                                          if (incall) {
-                                            return const ElevatedButton(
-                                                onPressed: null,
-                                                child: Text('In Call'));
-                                          }
-                                          return walletAmount > 0
-                                              ? Button(
-                                                  buttonname: "Call Purohith",
-                                                  width: double.infinity,
-                                                  onTap: () {
-
+                                    print(
+                                        'Wallet data: ${walletSnapshot.snapshot.value}');
+                                    if (!isOnline) {
+                                      Data customerCare = Data(
+                                          id: 168,
+                                          username: "customer care");
+                                      return Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              ElevatedButton(
+                                                  onPressed: () {
                                                     ref
                                                         .read(
-                                                            makeCallNotifierProvider
-                                                                .notifier)
+                                                        makeCallNotifierProvider
+                                                            .notifier)
                                                         .makeCallRequest(
-                                                            ref
-                                                                .read(
-                                                                    authProvider)
-                                                                .mobileno
-                                                                .toString(),
-                                                            user.mobileno
-                                                                .toString());
-                                                    showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
-                                                    // handleCallTap(
-                                                    //     context,
-                                                    //     user,
-                                                    //     productId,
-                                                    //     category.price == null
-                                                    //         ? 0
-                                                    //         : category.price!);
-                                                  })
-                                              : const Text("Insuft balance");
-                                        },
-                                      )
-                                    : Button(
-                                        buttonname: "Book Purohith",
+                                                      ref
+                                                          .read(
+                                                          authProvider)
+                                                          .mobileno
+                                                          .toString(),
+                                                      user.mobileno
+                                                          .toString(),custemor: true,);
+                                                  },
+                                                  child: const Text(
+                                                      'Call Custemor Care')),
+                                              const ElevatedButton(
+                                                  onPressed: null,
+                                                  child: Text('offline')),
+                                            ],
+                                          ),
+                                          const Text(
+                                              'Purohith is offline if it\'s urgent please contact customer care ')
+                                        ],
+                                      );
+                                    }
+                                    if (incall) {
+                                      return const ElevatedButton(
+                                          onPressed: null,
+                                          child: Text('In Call'));
+                                    }
+                                    return walletAmount > 0
+                                        ? Button(
+                                        buttonname: "Call Purohith",
                                         width: double.infinity,
                                         onTap: () {
-                                          showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return const CustomDialogBox();
-                                              });
-                                        }),
+
+                                          ref
+                                              .read(
+                                              makeCallNotifierProvider
+                                                  .notifier)
+                                              .makeCallRequest(
+                                            ref
+                                                .read(
+                                                authProvider)
+                                                .mobileno
+                                                .toString(),
+                                            user.mobileno
+                                                .toString(), custemor: false,);
+                                          initiateCall(context, ref, user, productId, category.price == null ? 0 : category.price!);
+                                        })
+                                        : const Text("Insuft balance");
+                                  },
+                                )
+                                    : Button(
+                                    buttonname: "Book Purohith",
+                                    width: double.infinity,
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return const CustomDialogBox();
+                                          });
+                                    }),
                                 Divider(
                                   thickness: screenSize.height * 0.006,
                                   endIndent: screenSize.width * 0.3,

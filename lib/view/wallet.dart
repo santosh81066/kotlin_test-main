@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:http/http.dart' as http;
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../widgets/appbar.dart';
@@ -24,6 +24,7 @@ class _WalletState extends State<Wallet> {
   String balance = 'balance ₹100';
 
   final fbuser = FirebaseAuth.instance.currentUser;
+
   @override
   void initState() {
     super.initState();
@@ -35,86 +36,140 @@ class _WalletState extends State<Wallet> {
 
   @override
   void dispose() {
-    super.dispose();
-    amt.dispose();
     razorpay.clear();
+    amt.dispose();
+    super.dispose();
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     final databaseReference = FirebaseDatabase.instance.ref();
-    final ScaffoldMessengerState scaffoldKey =
-        widget.scaffoldMessengerKey!.currentState as ScaffoldMessengerState;
-    scaffoldKey.showSnackBar(SnackBar(
-      content: Text('${response.paymentId}'),
-      duration: const Duration(seconds: 5),
-      backgroundColor: Colors.green,
-    ));
-    final uid = fbuser?.uid;
-    final userDataSnapshot =
-        await databaseReference.child('wallet').child(uid!).once();
-    int? walletamount = int.tryParse(amt.text.trim());
-    if (userDataSnapshot.snapshot.value == null) {
-      await databaseReference
-          .child('wallet')
-          .child(uid)
-          .set({'amount': walletamount});
-    } else {
-      var currentAmount = (userDataSnapshot.snapshot.value
-              as Map<dynamic, dynamic>)['amount'] ??
-          0;
-      await databaseReference
-          .child('wallet')
-          .child(uid)
-          .update({'amount': currentAmount + walletamount});
+    final scaffoldKey = widget.scaffoldMessengerKey?.currentState;
+
+    if (scaffoldKey != null) {
+      scaffoldKey.showSnackBar(SnackBar(
+        content: Text('Payment successful: ${response.paymentId}'),
+        duration: const Duration(seconds: 5),
+        backgroundColor: Colors.green,
+      ));
     }
-    // try {
-    //   if (fbuser == null) {}
-    //   await _firestore.runTransaction((transaction) async {
-    //     DocumentReference userDocRef =
-    //         _firestore.collection('users').doc(fbuser!.uid);
-    //     DocumentSnapshot userSnapshot = await transaction.get(userDocRef);
 
-    //     if (userSnapshot.exists) {
-    //       // Update the existing document with the new wallet balance
-    //       Map<String, dynamic> userData =
-    //           userSnapshot.data() as Map<String, dynamic>;
-    //       int currentBalance = int.parse(userData['wallet'].toString());
+    // Capture the payment to avoid it being refunded
+    try {
+      await capturePayment(
+          response.paymentId!, (num.parse(amt.text) * 100).toInt());
+    } catch (e) {
+      if (scaffoldKey != null) {
+        scaffoldKey.showSnackBar(SnackBar(
+          content: Text('Error capturing payment: $e'),
+          duration: const Duration(seconds: 5),
+          backgroundColor: Colors.red,
+        ));
+      }
+      return;
+    }
 
-    //       int updatedBalance = currentBalance + int.parse(amt.text.trim());
-    //       transaction.update(userDocRef, {'wallet': updatedBalance});
-    //     } else {
-    //       // Create a new document with the initial wallet balance
-    //       transaction.set(userDocRef, {
-    //         'wallet': amt.text.trim(),
-    //         'id': apicalls.userDetails!.data![0].id,
-    //         // Add more fields if needed
-    //       });
-    //     }
-    //   });
-    // } catch (e) {}
-    // Do something when payment succeeds
+    // Update user's wallet in Firebase
+    final uid = fbuser?.uid;
+    if (uid != null) {
+      try {
+        final userDataSnapshot =
+        await databaseReference.child('wallet').child(uid).once();
+        int? walletamount = int.tryParse(amt.text.trim());
+
+        if (walletamount != null) {
+          if (userDataSnapshot.snapshot.value == null) {
+            // User wallet does not exist, create new wallet with amount
+            await databaseReference.child('wallet').child(uid).set({'amount': walletamount});
+          } else {
+            // User wallet exists, update the amount
+            var currentAmount = (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+            await databaseReference.child('wallet').child(uid).update({'amount': currentAmount + walletamount});
+          }
+        }
+      } catch (e) {
+        if (scaffoldKey != null) {
+          scaffoldKey.showSnackBar(SnackBar(
+            content: Text('Error updating wallet balance: $e'),
+            duration: const Duration(seconds: 5),
+            backgroundColor: Colors.red,
+          ));
+        }
+      }
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    final ScaffoldMessengerState scaffoldKey =
-        widget.scaffoldMessengerKey!.currentState as ScaffoldMessengerState;
-    scaffoldKey.showSnackBar(SnackBar(
-      content: Text('${response.message}'),
-      duration: const Duration(seconds: 5),
-      backgroundColor: Colors.red,
-    ));
-    // Do something when payment fails
+    final scaffoldKey = widget.scaffoldMessengerKey?.currentState;
+    if (scaffoldKey != null) {
+      scaffoldKey.showSnackBar(SnackBar(
+        content: Text('Payment failed: ${response.message}'),
+        duration: const Duration(seconds: 5),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    final ScaffoldMessengerState scaffoldKey =
-        widget.scaffoldMessengerKey!.currentState as ScaffoldMessengerState;
-    scaffoldKey.showSnackBar(SnackBar(
-      content: Text('${response.walletName}'),
-      duration: const Duration(seconds: 5),
-      backgroundColor: Colors.green,
-    ));
-    // Do something when an external wallet was selected
+    final scaffoldKey = widget.scaffoldMessengerKey?.currentState;
+    if (scaffoldKey != null) {
+      scaffoldKey.showSnackBar(SnackBar(
+        content: Text('External Wallet Selected: ${response.walletName}'),
+        duration: const Duration(seconds: 5),
+        backgroundColor: Colors.green,
+      ));
+    }
+  }
+
+  void openCheckout() {
+    var options = {
+      'key': 'rzp_live_pO1cUwo4WWYNyt',
+      // Replace with your live key or test key
+      'amount': (num.parse(amt.text) * 100).toInt(),
+      // Razorpay accepts amount in paise
+      'name': 'Purohithulu',
+      'description': 'Wallet Payment',
+      'prefill': {
+        'contact': '9502105833', // Replace with user's contact
+        'email': 'manjunadh043@gmail.com' // Replace with user's email
+      }
+    };
+    try {
+      razorpay.open(options);
+    } catch (e) {
+      final scaffoldKey = widget.scaffoldMessengerKey?.currentState;
+      if (scaffoldKey != null) {
+        scaffoldKey.showSnackBar(SnackBar(
+          content: Text('Error opening Razorpay: $e'),
+          duration: const Duration(seconds: 5),
+          backgroundColor: Colors.red,
+        ));
+      }
+    }
+  }
+
+  Future<void> capturePayment(String paymentId, int amount) async {
+    final basicAuth = 'Basic ' +
+        base64Encode(utf8.encode('rzp_live_pO1cUwo4WWYNyt:p05Q1dXqlqU7Dak20EtKUvUw')); // Replace with your API Key and Secret
+    final url = 'https://api.razorpay.com/v1/payments/$paymentId/capture';
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Authorization': basicAuth,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'amount': amount, // The amount must be in paise
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Payment captured successfully
+      print('Payment captured successfully');
+    } else {
+      // Failed to capture payment
+      throw Exception('Failed to capture payment: ${response.body}');
+    }
   }
 
   @override
@@ -133,180 +188,37 @@ class _WalletState extends State<Wallet> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          amt.text = "100";
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                            Icon(
-  Icons.currency_rupee, // Use currency_rupee from icons class
-  size: 30,
-),
-                              SizedBox(height: 8),
-                              Text(
-                                "100",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                    for (var amount in [100, 200, 300, 400, 500, 1000])
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            amt.text = amount.toString();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.currency_rupee,
+                                  size: 30,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  amount.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          amt.text = "200";
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                             Icon(
-  Icons.currency_rupee, // Use currency_rupee from icons class
-  size: 30,
-),
-                              SizedBox(height: 8),
-                              Text(
-                                "200",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          amt.text = "300";
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                             Icon(
-  Icons.currency_rupee, // Use currency_rupee from icons class
-  size: 30,
-),
-                              SizedBox(height: 8),
-                              Text(
-                                "300",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          amt.text = "400";
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-  Icons.currency_rupee, // Use currency_rupee from icons class
-  size: 30,
-),
-                              SizedBox(height: 8),
-                              Text(
-                                "400",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          amt.text = "500";
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                             Icon(
-  Icons.currency_rupee, // Use currency_rupee from icons class
-  size: 30,
-),
-                              SizedBox(height: 8),
-                              Text(
-                                "500",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          amt.text = "1000";
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-  Icons.currency_rupee, // Use currency_rupee from icons class
-  size: 30,
-),
-                              SizedBox(height: 8),
-                              Text(
-                                "1000",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -317,24 +229,14 @@ class _WalletState extends State<Wallet> {
               ],
             ),
             Button(
-                onTap: () {
-                  openCheckout();
-                },
-                buttonname: "Add Amount")
+              onTap: () {
+                openCheckout();
+              },
+              buttonname: "Add Amount",
+            )
           ],
         ),
       ),
     );
-  }
-
-  void openCheckout() {
-    var options = {
-      'key': 'rzp_live_m3aaoXRpucS2SW',
-      'amount': num.parse(amt.text) * 100,
-      'name': 'Purohithulu',
-      'description': 'wallet',
-      'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'}
-    };
-    razorpay.open(options);
   }
 }
