@@ -21,7 +21,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
   String initialDateOfBirth = '';
   final _usernameController = TextEditingController();
   final _dateOfBirthController = TextEditingController();
-  final _PlaceOfBirthController = TextEditingController();
+  final _placeOfBirthController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -43,17 +43,25 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
   void dispose() {
     _usernameController.dispose();
     _dateOfBirthController.dispose();
-    _PlaceOfBirthController.dispose();
+    _placeOfBirthController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print("build save profile");
     final userProfileData = ref.watch(userProfileDataProvider);
     final userInteractionManager = ref.watch(userInteractionManagerProvider);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (userProfileData.data != null) {
+        final userData = userProfileData.data![0];
+
+        if (userData.username != null &&
+            _usernameController.text != userData.username) {
+          _usernameController.text = userData.username!;
+        }
+
         if (userProfileData.data![0].dateofbirth != null &&
             userInteractionManager.dateAndTimeOfBirth == null &&
             userInteractionManager.selectedTimeOfBirth == null) {
@@ -67,14 +75,36 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
           _dateOfBirthController.text = initialDateOfBirth;
         }
 
-        if (userProfileData.data![0].username != null) {
-          _usernameController.text = userProfileData.data![0].username!;
-        }
-        if (userProfileData.data![0].placeofbirth != null) {
-          _PlaceOfBirthController.text = userProfileData.data![0].placeofbirth!;
+        if (userData.placeofbirth != null &&
+            _placeOfBirthController.text != userData.placeofbirth) {
+          _placeOfBirthController.text = userData.placeofbirth!;
         }
       }
     });
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (userProfileData.data != null) {
+    //     if (userProfileData.data![0].dateofbirth != null &&
+    //         userInteractionManager.dateAndTimeOfBirth == null &&
+    //         userInteractionManager.selectedTimeOfBirth == null) {
+    //       initialDateOfBirth = userProfileData.data![0].dateofbirth!;
+    //       _dateOfBirthController.text = initialDateOfBirth;
+    //     } else if (userProfileData.data![0].dateofbirth != null &&
+    //         userInteractionManager.dateAndTimeOfBirth != null &&
+    //         userInteractionManager.selectedTimeOfBirth != null) {
+    //       initialDateOfBirth =
+    //           '${userInteractionManager.dateOfBirth} ${userInteractionManager.selectedTimeOfBirth!.hour.toString().padLeft(2, '0')}:${userInteractionManager.selectedTimeOfBirth!.minute.toString().padLeft(2, '0')}';
+    //       _dateOfBirthController.text = initialDateOfBirth;
+    //     }
+    //
+    //     if (userProfileData.data![0].username != null) {
+    //       _usernameController.text = userProfileData.data![0].username!;
+    //     }
+    //     if (userProfileData.data![0].placeofbirth != null) {
+    //       _placeOfBirthController.text = userProfileData.data![0].placeofbirth!;
+    //     }
+    //   }
+    // });
 
     File? currentImageFile;
     return Scaffold(
@@ -137,32 +167,37 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                       },
                     );
                   },
-                  child: FutureBuilder<File?>(
-                    future: ref
-                        .read(userProfileDataProvider.notifier)
-                        .getImageFile(context),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<File?> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.hasData && snapshot.data != null) {
-                          final file = snapshot.data!;
-                          currentImageFile = file;
-                          return CircleAvatar(
-                            radius: 50.0,
-                            backgroundImage: FileImage(file),
-                          );
-                        } else {
-                          return const CircleAvatar(
-                            radius: 50.0,
-                            child: Icon(Icons.person, size: 50.0),
-                          );
-                        }
-                      } else {
-                        return const CircleAvatar(
-                          radius: 50.0,
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+                  child: Consumer(
+                    builder: (con, ref, child) {
+                      return FutureBuilder<File?>(
+                        future: ref
+                            .read(userProfileDataProvider.notifier)
+                            .getImageFile(context),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<File?> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              final file = snapshot.data!;
+                              currentImageFile = file;
+                              return CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: FileImage(file),
+                              );
+                            } else {
+                              return const CircleAvatar(
+                                radius: 50.0,
+                                child: Icon(Icons.person, size: 50.0),
+                              );
+                            }
+                          } else {
+                            return const CircleAvatar(
+                              radius: 50.0,
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      );
                     },
                   ),
                 ),
@@ -222,7 +257,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                     }
                     return null;
                   },
-                  controller: _PlaceOfBirthController,
+                  controller: _placeOfBirthController,
                   decoration: const InputDecoration(
                     labelText: 'Place of Birth',
                   ),
@@ -239,13 +274,13 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                             id: userProfileData.data![0].id,
                             username: _usernameController.text,
                             dateofbirth: _dateOfBirthController.text,
-                            placeofbirth: _PlaceOfBirthController.text,
+                            placeofbirth: _placeOfBirthController.text,
                           );
                           await ref
                               .read(userProfileDataProvider.notifier)
                               .updateUser(
                                   _usernameController.text,
-                                  _PlaceOfBirthController.text,
+                                  _placeOfBirthController.text,
                                   _dateOfBirthController.text,
                                   context);
                           await ref
@@ -264,12 +299,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                                               ElevatedButton(
                                                 child: const Text('OK'),
                                                 onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pushNamedAndRemoveUntil(
-                                                          'wellcome',
-                                                          (Route<dynamic>
-                                                                  route) =>
-                                                              false);
+                                                  Navigator.of(context).pop();
                                                 },
                                               ),
                                             ],
