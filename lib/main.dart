@@ -213,7 +213,7 @@ class _MyAppState extends State<MyApp> {
                             : const SaveProfile();
                       }
 
-                      // If the user is not authenticated, attempt auto-login
+                      // If the user is not authenticated
                       return FutureBuilder(
                         future: ref.watch(authProvider.notifier).tryAutoLogin(),
                         builder: (context, snapshot) {
