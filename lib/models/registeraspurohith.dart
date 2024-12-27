@@ -25,10 +25,9 @@ class RegisterAsPurohith {
         'statusCode': statusCode,
         'success': success,
         'messages': messages,
-        'data': data?.map((e) => e.toJson()).toList()
+        'data': data?.map((e) => e.toJson()).toList(),
       };
 
-  // Initial method
   factory RegisterAsPurohith.initial() {
     return RegisterAsPurohith(
       statusCode: 0,
@@ -38,7 +37,6 @@ class RegisterAsPurohith {
     );
   }
 
-  // CopyWith method
   RegisterAsPurohith copyWith({
     int? statusCode,
     bool? success,
@@ -69,6 +67,7 @@ class Data {
   final dynamic adharno;
   final int? location;
   final dynamic dateofbirth;
+  final String? youtubeUrl; // Add youtubeUrl field
   final dynamic placeofbirth;
 
   Data({
@@ -87,6 +86,7 @@ class Data {
     this.location,
     this.dateofbirth,
     this.placeofbirth,
+    this.youtubeUrl, // Add youtubeUrl to constructor
   });
 
   Data.fromJson(Map<String, dynamic> json)
@@ -104,7 +104,8 @@ class Data {
         adharno = json['adharno'],
         location = json['location'] as int?,
         dateofbirth = json['dateofbirth'],
-        placeofbirth = json['placeofbirth'];
+        placeofbirth = json['placeofbirth'],
+        youtubeUrl = json['youtubeUrl'] as String?; // Assign youtubeUrl
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -121,10 +122,10 @@ class Data {
         'adharno': adharno,
         'location': location,
         'dateofbirth': dateofbirth,
-        'placeofbirth': placeofbirth
+        'placeofbirth': placeofbirth,
+        'youtubeUrl': youtubeUrl, // Include youtubeUrl in toJson
       };
 
-  // CopyWith method
   Data copyWith({
     int? id,
     String? username,
@@ -141,6 +142,7 @@ class Data {
     int? location,
     dynamic dateofbirth,
     dynamic placeofbirth,
+    String? youtubeUrl, // Add youtubeUrl to copyWith
   }) {
     return Data(
       id: id ?? this.id,
@@ -158,6 +160,7 @@ class Data {
       location: location ?? this.location,
       dateofbirth: dateofbirth ?? this.dateofbirth,
       placeofbirth: placeofbirth ?? this.placeofbirth,
+      youtubeUrl: youtubeUrl ?? this.youtubeUrl, // Include youtubeUrl in copyWith
     );
   }
 }

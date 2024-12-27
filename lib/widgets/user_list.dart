@@ -15,7 +15,7 @@ import '../utils/purohitapi.dart';
 
 import 'button.dart';
 
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class UserList extends ConsumerWidget {
   final List<Data> users;
@@ -237,7 +237,7 @@ class UserList extends ConsumerWidget {
     if (walletAmount <= 0 && billingMode == 'p') {
       showWalletRechargeDialog(context);
     } else {
-      initiateCall(context, ref, user, productId, fcmToken);
+      // initiateCall(context, ref, user, productId, fcmToken);
     }
   }
 
@@ -268,27 +268,27 @@ class UserList extends ConsumerWidget {
     );
   }
 
-  void initiateCall(BuildContext context, WidgetRef ref, Data user,
-      String productId, String fcmToken) {
-    ref.read(zegeoCloudNotifierProvider.notifier).setPurohithDetails(
-        user.amount?.toDouble() ?? 0.0, int.parse(productId), user.id!);
-    var invites = ref
-        .read(zegeoCloudNotifierProvider.notifier)
-        .getInvitesFromTextCtrl(user.id.toString())
-        .map((u) {
-      return ZegoCallUser(u.id, user.username!);
-    }).toList();
-    // ref.read(notificationProvider.notifier).sendFCMMessage(
-    //     fcmToken, 'Purohithulu', 'You have a call from purohithulu');
-    ref.read(zegeoCloudNotifierProvider).zegoController.sendCallInvitation(
-          notificationTitle: catname,
-          invitees: invites,
-          customData: json.encode({
-            "amount": user.amount ?? 0.0,
-            "userid": ref.read(userProfileDataProvider).data![0].id,
-            "catid": productId
-          }),
-          isVideoCall: false,
-        );
-  }
+  // void initiateCall(BuildContext context, WidgetRef ref, Data user,
+  //     String productId, String fcmToken) {
+  //   ref.read(zegeoCloudNotifierProvider.notifier).setPurohithDetails(
+  //       user.amount?.toDouble() ?? 0.0, int.parse(productId), user.id!);
+  //   var invites = ref
+  //       .read(zegeoCloudNotifierProvider.notifier)
+  //       .getInvitesFromTextCtrl(user.id.toString())
+  //       .map((u) {
+  //     return ZegoCallUser(u.id, user.username!);
+  //   }).toList();
+  //   // ref.read(notificationProvider.notifier).sendFCMMessage(
+  //   //     fcmToken, 'Purohithulu', 'You have a call from purohithulu');
+  //   ref.read(zegeoCloudNotifierProvider).zegoController.sendCallInvitation(
+  //         notificationTitle: catname,
+  //         invitees: invites,
+  //         customData: json.encode({
+  //           "amount": user.amount ?? 0.0,
+  //           "userid": ref.read(userProfileDataProvider).data![0].id,
+  //           "catid": productId
+  //         }),
+  //         isVideoCall: false,
+  //       );
+  // }
 }

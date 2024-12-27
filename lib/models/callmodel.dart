@@ -1,36 +1,24 @@
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-
 class Call {
-  final int amount;
-  final int minutes;
-  final double? callRate;
-  final int? ctypeId;
-  final int? purohithId;
-  final ZegoUIKitPrebuiltCallController zegoController;
+  String? apiId;
+  String? callUUID;
+  String? message;
+  String? success;
 
-  Call(
-      {required this.amount,
-      required this.minutes,
-      this.purohithId,
-      this.ctypeId,
-      this.callRate,
-      ZegoUIKitPrebuiltCallController? controller})
-      : zegoController = controller ?? ZegoUIKitPrebuiltCallController();
+  Call({this.apiId, this.callUUID, this.message, this.success, required int amount, required int minutes, required int overPulseCount});
 
-  Call copyWith(
-      {int? amount,
-      int? minutes,
-      double? callRate,
-      int? ctypeId,
-      int? purohithId,
-      ZegoUIKitPrebuiltCallController? controller}) {
-    return Call(
-      purohithId: purohithId ?? this.purohithId,
-      ctypeId: ctypeId ?? this.ctypeId,
-      callRate: callRate ?? this.callRate,
-      amount: amount ?? this.amount,
-      minutes: minutes ?? this.minutes,
-      controller: controller ?? zegoController,
-    );
+  Call.fromJson(Map<String, dynamic> json) {
+    apiId = json['ApiId'];
+    callUUID = json['CallUUID'];
+    message = json['Message'];
+    success = json['Success'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['ApiId'] = this.apiId;
+    data['CallUUID'] = this.callUUID;
+    data['Message'] = this.message;
+    data['Success'] = this.success;
+    return data;
   }
 }

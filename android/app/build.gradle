@@ -30,7 +30,8 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.purohith.users"
-    compileSdk flutter.compileSdkVersion
+    // compileSdk flutter.compileSdkVersion
+     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {

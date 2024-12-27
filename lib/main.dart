@@ -20,8 +20,8 @@ import '/view/splashScreen.dart';
 import '/view/subcatscreen.dart';
 import '/view/verify_otp.dart';
 import '/view/wallet.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 import 'view/wellcomescreen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
@@ -42,16 +42,16 @@ void main() {
 
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
-    ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+    // ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
 
-    try {
-      await ZegoUIKit().initLog();
-      ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-        [ZegoUIKitSignalingPlugin()],
-      );
-    } on PlatformException catch (e) {
-      print('PlatformException was thrown: ${e.message}');
-    }
+    // try {
+    //   await ZegoUIKit().initLog();
+    //   ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+    //     [ZegoUIKitSignalingPlugin()],
+    //   );
+    // } on PlatformException catch (e) {
+    //   print('PlatformException was thrown: ${e.message}');
+    // }
 
     runApp(
       ProviderScope(child: MyApp(navigatorKey: navigatorKey)),
@@ -213,7 +213,7 @@ class _MyAppState extends State<MyApp> {
                             : const SaveProfile();
                       }
 
-                      // If the user is not authenticated
+                      // If the user is not authenticated, attempt auto-login
                       return FutureBuilder(
                         future: ref.watch(authProvider.notifier).tryAutoLogin(),
                         builder: (context, snapshot) {

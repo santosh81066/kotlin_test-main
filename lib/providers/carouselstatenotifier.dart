@@ -5,10 +5,8 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/retry.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:http/http.dart' as http;
 
 import '../models/carouselimages.dart';
@@ -27,7 +25,6 @@ class CarouselStateNotifier extends StateNotifier<CategoryState> {
     String? savedpurohithCarouselResponseJson =
         prefs.getString('purohithCarouselResponse');
     if (savedpurohithCarouselResponseJson != null) {
-     
       // Decode the JSON string back into a Map
       Map<String, dynamic> savedpurohithCarouselResponse =
           json.decode(savedpurohithCarouselResponseJson);
@@ -44,7 +41,8 @@ class CarouselStateNotifier extends StateNotifier<CategoryState> {
       },
       onRetry: (req, res, retryCount) async {
         if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken = await authNotifier.restoreAccessToken(call: "get carousal");
+          var accessToken =
+              await authNotifier.restoreAccessToken(call: "get carousal");
           // Only this block can run (once) until done
           req.headers['Authorization'] = accessToken;
         }
@@ -59,7 +57,7 @@ class CarouselStateNotifier extends StateNotifier<CategoryState> {
     );
 
     Map<String, dynamic> purohithCarouselResponse = json.decode(response.body);
-   
+
     await prefs.setString(
         'purohithCarouselResponse', json.encode(purohithCarouselResponse));
     state = state.copyWith(
@@ -122,8 +120,6 @@ class CarouselStateNotifier extends StateNotifier<CategoryState> {
         final xfile = await getCarouselPic(imageid.toString());
         if (xfile != null) {
           carouseldata.xfile = xfile;
-          
-          
         }
       }
       return carouseldata;

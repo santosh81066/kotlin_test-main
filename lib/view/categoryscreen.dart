@@ -48,15 +48,15 @@ class _CatScreenState extends ConsumerState<CatScreen> {
         shouldWatchData = true; // Watch for data updates
       }
       var userDetails = ref.read(userProfileDataProvider);
-      Future.delayed(Duration.zero).then((value) => ref
-          .read(zegeoCloudNotifierProvider.notifier)
-          .onUserLogin(
-              userDetails.data![0].id.toString(),
-              userDetails.data![0].username!,
-              context,
-              catname,
-              billingMode,
-              ref));
+      // Future.delayed(Duration.zero).then((value) => ref
+      //     .read(zegeoCloudNotifierProvider.notifier)
+      //     .onUserLogin(
+      //         userDetails.data![0].id.toString(),
+      //         userDetails.data![0].username!,
+      //         context,
+      //         catname,
+      //         billingMode,
+      //         ref));
     });
   }
 

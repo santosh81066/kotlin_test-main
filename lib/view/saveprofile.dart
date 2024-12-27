@@ -1,12 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../controller/user_intraction_manager.dart';
 import '../models/profiledata.dart';
 import '../providers/userprofiledatanotifier.dart';
+import 'account.dart';
 
 class SaveProfile extends ConsumerStatefulWidget {
   const SaveProfile({super.key});
@@ -30,10 +29,8 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
 
     if (init) {
       final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
-      if (arguments != null &&
-          arguments.containsKey('automaticallyImplyLeading')) {
-        automaticallyImplyLeading =
-            arguments['automaticallyImplyLeading'] as bool;
+      if (arguments != null && arguments.containsKey('automaticallyImplyLeading')) {
+        automaticallyImplyLeading = arguments['automaticallyImplyLeading'] as bool;
       }
       init = false;
     }
@@ -57,8 +54,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
       if (userProfileData.data != null) {
         final userData = userProfileData.data![0];
 
-        if (userData.username != null &&
-            _usernameController.text != userData.username) {
+        if (userData.username != null && _usernameController.text != userData.username) {
           _usernameController.text = userData.username!;
         }
 
@@ -75,36 +71,11 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
           _dateOfBirthController.text = initialDateOfBirth;
         }
 
-        if (userData.placeofbirth != null &&
-            _placeOfBirthController.text != userData.placeofbirth) {
+        if (userData.placeofbirth != null && _placeOfBirthController.text != userData.placeofbirth) {
           _placeOfBirthController.text = userData.placeofbirth!;
         }
       }
     });
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (userProfileData.data != null) {
-    //     if (userProfileData.data![0].dateofbirth != null &&
-    //         userInteractionManager.dateAndTimeOfBirth == null &&
-    //         userInteractionManager.selectedTimeOfBirth == null) {
-    //       initialDateOfBirth = userProfileData.data![0].dateofbirth!;
-    //       _dateOfBirthController.text = initialDateOfBirth;
-    //     } else if (userProfileData.data![0].dateofbirth != null &&
-    //         userInteractionManager.dateAndTimeOfBirth != null &&
-    //         userInteractionManager.selectedTimeOfBirth != null) {
-    //       initialDateOfBirth =
-    //           '${userInteractionManager.dateOfBirth} ${userInteractionManager.selectedTimeOfBirth!.hour.toString().padLeft(2, '0')}:${userInteractionManager.selectedTimeOfBirth!.minute.toString().padLeft(2, '0')}';
-    //       _dateOfBirthController.text = initialDateOfBirth;
-    //     }
-    //
-    //     if (userProfileData.data![0].username != null) {
-    //       _usernameController.text = userProfileData.data![0].username!;
-    //     }
-    //     if (userProfileData.data![0].placeofbirth != null) {
-    //       _placeOfBirthController.text = userProfileData.data![0].placeofbirth!;
-    //     }
-    //   }
-    // });
 
     File? currentImageFile;
     return Scaffold(
@@ -135,13 +106,9 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                                 onTap: () async {
                                   Navigator.pop(context);
                                   final pickedFile =
-                                      await userInteractionManager
-                                          .onImageButtonPress(
-                                              ImageSource.camera);
+                                      await userInteractionManager.onImageButtonPress(ImageSource.camera);
                                   if (pickedFile != null) {
-                                    ref
-                                        .read(userProfileDataProvider.notifier)
-                                        .setImageFile(pickedFile);
+                                    ref.read(userProfileDataProvider.notifier).setImageFile(pickedFile);
                                   }
                                 },
                               ),
@@ -151,13 +118,9 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                                 onTap: () async {
                                   Navigator.pop(context);
                                   final pickedFile =
-                                      await userInteractionManager
-                                          .onImageButtonPress(
-                                              ImageSource.gallery);
+                                      await userInteractionManager.onImageButtonPress(ImageSource.gallery);
                                   if (pickedFile != null) {
-                                    ref
-                                        .read(userProfileDataProvider.notifier)
-                                        .setImageFile(pickedFile);
+                                    ref.read(userProfileDataProvider.notifier).setImageFile(pickedFile);
                                   }
                                 },
                               ),
@@ -170,13 +133,9 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                   child: Consumer(
                     builder: (con, ref, child) {
                       return FutureBuilder<File?>(
-                        future: ref
-                            .read(userProfileDataProvider.notifier)
-                            .getImageFile(context),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<File?> snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
+                        future: ref.read(userProfileDataProvider.notifier).getImageFile(context),
+                        builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
                             if (snapshot.hasData && snapshot.data != null) {
                               final file = snapshot.data!;
                               currentImageFile = file;
@@ -213,13 +172,10 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                   decoration: const InputDecoration(
                     labelText: 'Username',
                   ),
-                  onChanged: (value) => {},
                 ),
                 Consumer(
                   builder: (context, ref, child) {
-                    final userInteractionManager =
-                        ref.watch(userInteractionManagerProvider);
-
+                    final userInteractionManager = ref.watch(userInteractionManagerProvider);
                     if (userInteractionManager.dateAndTimeOfBirth != null &&
                         userInteractionManager.selectedTimeOfBirth != null) {
                       String formattedTime =
@@ -242,10 +198,8 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                       readOnly: true,
                       onTap: () {
                         Future.delayed(Duration.zero)
-                            .then((value) =>
-                                userInteractionManager.dateofbirth(context))
-                            .then((value) => userInteractionManager
-                                .selectTimeOfBirth(context));
+                            .then((value) => userInteractionManager.dateofbirth(context))
+                            .then((value) => userInteractionManager.selectTimeOfBirth(context));
                       },
                     );
                   },
@@ -261,12 +215,10 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                   decoration: const InputDecoration(
                     labelText: 'Place of Birth',
                   ),
-                  onChanged: (value) => {},
                 ),
                 const SizedBox(height: 16.0),
                 Consumer(
                   builder: (context, ref, child) {
-                    var userData = ref.read(userProfileDataProvider);
                     return ElevatedButton(
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
@@ -276,30 +228,22 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                             dateofbirth: _dateOfBirthController.text,
                             placeofbirth: _placeOfBirthController.text,
                           );
-                          await ref
-                              .read(userProfileDataProvider.notifier)
-                              .updateUser(
-                                  _usernameController.text,
-                                  _placeOfBirthController.text,
-                                  _dateOfBirthController.text,
-                                  context);
-                          await ref
-                              .read(userProfileDataProvider.notifier)
-                              .updateUserModel(
-                                  userData.data![0].id!.toString(), updatedUser)
+                          await ref.read(userProfileDataProvider.notifier).updateUser(
+                              _usernameController.text, _placeOfBirthController.text, _dateOfBirthController.text, context);
+                          await ref.read(userProfileDataProvider.notifier).updateUserModel(
+                              userProfileData.data![0].id!.toString(), updatedUser)
                               .then((value) => Future.delayed(Duration.zero)
                                   .then((value) => showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
                                             title: const Text('Success'),
-                                            content: const Text(
-                                                'Profile updated successfully'),
+                                            content: const Text('Profile updated successfully'),
                                             actions: [
                                               ElevatedButton(
                                                 child: const Text('OK'),
                                                 onPressed: () {
-                                                  Navigator.of(context).pop();
+                                                  Navigator.pushNamed(context, 'wellcome');
                                                 },
                                               ),
                                             ],

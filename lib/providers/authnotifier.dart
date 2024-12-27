@@ -20,16 +20,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
       print('trylogin is false');
       return false;
     }
+Map<String, dynamic> allValues = prefs.getKeys().fold<Map<String, dynamic>>(
+    {},
+    (map, key) {
+      map[key] = prefs.get(key); // Add the key-value pair to the map
+      return map;
+    },
+  );
 
+  // Print the keys and values
+  allValues.forEach((key, value) {
+    print('Key: $key, Value: $value');
+  });
     final extractData =
         json.decode(prefs.getString('userData')!) as Map<String, dynamic>;
     final profile = prefs.getBool('profile') ?? false;
     final expiryDate = DateTime.parse(extractData['refreshExpiry']);
     final accessExpiry = DateTime.parse(extractData['accessTokenExpiry']);
-
+  print("extract data: $extractData");
     state = state.copyWith(
       sessionId: extractData['sessionId'],
-      mobileno: extractData['userId'],
+      mobileno: extractData['MobilNo'],
       refreshToken: extractData['refreshToken'],
       accessToken: extractData['accessToken'],
       refreshTokenExpiryDate: expiryDate,
@@ -76,13 +87,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       final userData = json.encode({
         'sessionId': state.sessionId,
-        'userId': state.mobileno,
+        'MobilNo': state.mobileno,
         'refreshToken': state.refreshToken,
         'refreshExpiry': state.refreshTokenExpiryDate!.toIso8601String(),
         'accessToken': state.accessToken,
         'accessTokenExpiry': state.accessTokenExpiryDate!.toIso8601String(),
       });
-
+     print("state.mobileno : ${state.mobileno}");
       await prefs.setString('userData', userData);
       print('register user ${prefs.getString('userData')}');
       await ref.read(userProfileDataProvider.notifier).getUser(context, ref);
