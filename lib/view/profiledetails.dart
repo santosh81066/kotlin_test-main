@@ -11,7 +11,6 @@ import 'package:talk2purohith/providers/authnotifier.dart';
 import 'package:talk2purohith/providers/makecallnotifier.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../models/purohithusers.dart';
 import '../providers/categorynotifier.dart';
 import '../providers/userprofiledatanotifier.dart';
@@ -31,17 +30,8 @@ class ProfileDetails extends ConsumerStatefulWidget {
 class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
   Stream<Map<String, dynamic>> combineStreams(
       Stream<DatabaseEvent> stream1, Stream<DatabaseEvent> stream2) async* {
-    // Create stream controllers for both streams
-    final controller1 = StreamController<DatabaseEvent>();
-    final controller2 = StreamController<DatabaseEvent>();
-
-    // Listen to the streams and add data to controllers
-    stream1.listen((event) => controller1.add(event));
-    stream2.listen((event) => controller2.add(event));
-
-    // Combine the data from both streams
-    await for (var event1 in controller1.stream) {
-      await for (var event2 in controller2.stream) {
+    await for (var event1 in stream1) {
+      await for (var event2 in stream2) {
         yield {
           'usersSnapshot': event1,
           'walletSnapshot': event2,
@@ -50,63 +40,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     }
   }
 
-  // void handleCallTap(
-  //     BuildContext context, Data user, String productId, int amount) {
-  //   initiateCall(context, ref, user, productId, amount);
-  // }
-
-  @override
-  // void initState() async {
-  // final prefs = await SharedPreferences.getInstance();
-  //   var callId=  prefs.getString('callId');
-  //   print('callId $callId form in it state' );
-  //   // TODO: implement initState
-  //   super.initState();
-  //   ref.read(makeCallNotifierProvider.notifier).getCallReport(callId.toString(), 50);
-  //
-  // }
-  // void initiateCall(BuildContext context, WidgetRef ref, Data user,
-  //     String productId, int amount) {
-  //   print('initiate call');
-  //   ref
-  //       .read(zegeoCloudNotifierProvider.notifier)
-  //       .setPurohithDetails(amount.toDouble(), int.parse(productId), user.id!);
-  //   var invites = ref
-  //       .read(zegeoCloudNotifierProvider.notifier)
-  //       .getInvitesFromTextCtrl(user.id.toString())
-  //       .map((u) {
-  //     return ZegoCallUser(u.id, user.username!);
-  //   }).toList();
-
-  //   // Send the call invitation and handle response
-  //   ZegoUIKitPrebuiltCallInvitationService()
-  //       .send(
-  //     resourceID: "purohithulu",
-  //     invitees: invites,
-  //     isVideoCall: false,
-  //     customData: json.encode({
-  //       "amount": amount,
-  //       "userid": ref.read(userProfileDataProvider).data![0].id,
-  //       "catid": productId
-  //     }),
-  //     notificationTitle: user.username,
-  //     notificationMessage: "You got an incoming call",
-  //   )
-  //       .then((success) {
-  //     // If the call request was successful, show the waitlist dialog
-  //     if (success) {
-  //       showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(),
-  //           user.username!);
-  //     } else {
-  //       // If the call request failed, show the call failed dialog
-  //       showCallFailedDialog(context);
-  //     }
-  //   }).catchError((error) {
-  //     // Handle any errors during the call request
-  //     showCallFailedDialog(context);
-  //   });
-  // }
-
+  // Called when the "Call Failed" dialog is displayed
   void showCallFailedDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -153,80 +87,40 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     );
   }
 
+  // Show the waitlist dialog
   void showWaitlistDialog(
       BuildContext context, String username, String purohithName) {
-    // Timer to close the dialog after 60 seconds
     Timer(Duration(seconds: 60), () {
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
     });
 
+    // Show the dialog
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          contentPadding: const EdgeInsets.all(16),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Connecting To Purohith!",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.yellow[700],
-                    backgroundImage: const NetworkImage(
-                      'https://via.placeholder.com/50', // Placeholder URL
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundImage: NetworkImage(username),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "You will receive a Call request when the purohith is ready",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Manually close the dialog when the button is pressed
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Close"),
-              ),
-            ],
-          ),
-        );
+        return CountdownDialog(username: username);
       },
     );
+
+    // Listen for the "Call Found" message and close the dialog
+    listenForCallFoundMessage(context);
   }
 
-  // Call this function when the Purohith answers the call
-  void closeDialog(BuildContext context) {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
+  // Listen for the "Call Found" message and close the dialog
+  void listenForCallFoundMessage(BuildContext context) {
+    Future.delayed(Duration(seconds: 5), () {
+      String message =
+          "Call Found"; // This could come from an event or callback
+
+      if (message == "Call Found" && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(); // Close the dialog
+      }
+    });
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     var arguments = ModalRoute.of(context)!.settings.arguments as Map;
@@ -465,25 +359,23 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                   children: [
                                                     ElevatedButton(
                                                         onPressed: () {
-                                                          print("user.mobileno : ${ref
-                                                                    .read(
-                                                                        authProvider)
-                                                                    .mobileno}");
-                                                          ref
-                                                              .read(
-                                                                  makeCallNotifierProvider
-                                                                      .notifier)
-                                                              .makeCallRequest(context,
-                                                                ref
-                                                                    .read(
-                                                                        authProvider)
-                                                                    .mobileno
-                                                                    .toString(),
-                                                                user.mobileno
-                                                                    .toString(),
-                                                                
-                                                                custemor: true,
-                                                              );
+                                                          // ref
+                                                          //     .read(
+                                                          //         makeCallNotifierProvider
+                                                          //             .notifier)
+                                                          //     .makeCallRequest(context,
+                                                          //       ref
+                                                          //           .read(
+                                                          //               authProvider)
+                                                          //           .mobileno
+                                                          //           .toString(),
+                                                          //       user.mobileno
+                                                          //           .toString(),
+                                                                    
+                                                          //       custemor: true,
+                                                          //     );
+                                                         Navigator.of(context).pushNamed('Customer Care');
+                                                              // showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
                                                         },
                                                         child: const Text(
                                                             'Call Custemor Care')),
@@ -521,6 +413,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                               .toString(),
                                                           custemor: false, 
                                                         );
+                                                        showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
                                                     // initiateCall(
                                                     //     context,
                                                     //     ref,
@@ -529,6 +422,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                     //     category.price == null
                                                     //         ? 0
                                                     //         : category.price!);
+                                                    
                                                   })
                                               : const Text("Insuft balance");
                                         },
@@ -561,5 +455,107 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
             ),
           ),
         ));
+  }
+}
+// Countdown Dialog Widget - Defined outside the main widget
+class CountdownDialog extends StatefulWidget {
+  final String username;
+
+  const CountdownDialog({super.key, required this.username});
+
+  @override
+  _CountdownDialogState createState() => _CountdownDialogState();
+}
+
+class _CountdownDialogState extends State<CountdownDialog> {
+  int _timer = 60; // Start from 60 seconds
+  late Timer _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  // Start the countdown timer
+  void _startTimer() {
+    _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_timer > 1) {
+        setState(() {
+          _timer--;
+        });
+      } else {
+        _countdownTimer.cancel(); // Stop the timer once it reaches 0
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop(); // Close the dialog when timer reaches 0
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer.cancel(); // Cancel the timer when the dialog is closed
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      contentPadding: const EdgeInsets.all(16),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            "Connecting To Purohith!",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.yellow[700],
+                backgroundImage: const NetworkImage(
+                  'https://via.placeholder.com/50', // Placeholder URL
+                ),
+              ),
+              const SizedBox(width: 10),
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(widget.username),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Time remaining: $_timer seconds",
+            style: const TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "You will receive a Call request when the purohith is ready",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              // Manually close the dialog when the button is pressed
+              _countdownTimer.cancel(); // Stop the timer
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text("Close"),
+          ),
+        ],
+      ),
+    );
   }
 }

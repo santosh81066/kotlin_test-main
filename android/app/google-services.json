@@ -3,7 +3,7 @@
     "project_number": "408590004796",
     "firebase_url": "https://vedicpurohit-d68c1-default-rtdb.firebaseio.com",
     "project_id": "vedicpurohit-d68c1",
-    "storage_bucket": "vedicpurohit-d68c1.appspot.com"
+    "storage_bucket": "vedicpurohit-d68c1.firebasestorage.app"
   },
   "client": [
     {
@@ -138,22 +138,6 @@
         }
       },
       "oauth_client": [
-        {
-          "client_id": "408590004796-oqnisr4uvm7a5rtffeudh3q1anajd9o3.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.purohithulu.agents",
-            "certificate_hash": "1f17efcbaff9e25de3df3f8dcaef6d2da5680414"
-          }
-        },
-        {
-          "client_id": "408590004796-ti8utndvb3nt2ijneogbtuh8spjpmv70.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.purohithulu.agents",
-            "certificate_hash": "c08eb42354f0a86c6dc66e7065b1ef91ec6b60f1"
-          }
-        },
         {
           "client_id": "408590004796-qv6c7ba3crn23sc2o32i819r52havtpc.apps.googleusercontent.com",
           "client_type": 3
