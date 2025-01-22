@@ -120,7 +120,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     });
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     var arguments = ModalRoute.of(context)!.settings.arguments as Map;
@@ -274,35 +274,76 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13),
                                 ),
-                                // Container(
-                                //   margin: EdgeInsets.only(
-                                //       bottom: screenSize.height * 0.015),
-                                //   child: const Text(
-                                //     "i am proficient in all poojas",
-                                //     style: TextStyle(fontSize: 14),
-                                //   ),
-                                // ),
                                 Container(
                                   margin: EdgeInsets.only(
                                       bottom: screenSize.height * 0.015),
-                                  child: RichText(
-                                    text: TextSpan(
-                                      text: "I am proficient in all poojas",
-                                      style: TextStyle(
-                                          fontSize: 14, color: Colors.blue),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          const url =
-                                              'https://youtu.be/qaf4cDPsW68?si=c6eWifJA4WhGjaWL'; // Replace with your URL
-                                          if (await canLaunch(url)) {
-                                            await launch(url);
-                                          } else {
-                                            throw 'Could not launch $url';
-                                          }
-                                        },
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Languages :',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${user.languages ?? 'Not specified'}",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                      SizedBox(height: 14),
+                                      Container(
+                                        height: 40,
+                                        width: 150,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFFF5C662),
+                                          borderRadius:
+                                              BorderRadius.circular(107),
+                                        ),
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            var url = user.expirience;
+                                            if (await canLaunch(url!)) {
+                                              await launch(url);
+                                            } else {
+                                              throw 'Could not launch $url';
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.transparent,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(107),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons
+                                                    .slow_motion_video_outlined,
+                                                color: Colors.black,
+                                              ),
+                                              SizedBox(
+                                                width: 4,
+                                              ),
+                                              Text(
+                                                'About me',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   ),
                                 ),
+                                // onTap =
+
                                 arguments['cattype'] == 'c'
                                     ? StreamBuilder(
                                         stream: combinedStream,
@@ -357,35 +398,60 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    ElevatedButton(
-                                                        onPressed: () {
-                                                          // ref
-                                                          //     .read(
-                                                          //         makeCallNotifierProvider
-                                                          //             .notifier)
-                                                          //     .makeCallRequest(context,
-                                                          //       ref
-                                                          //           .read(
-                                                          //               authProvider)
-                                                          //           .mobileno
-                                                          //           .toString(),
-                                                          //       user.mobileno
-                                                          //           .toString(),
-                                                                    
-                                                          //       custemor: true,
-                                                          //     );
-                                                         Navigator.of(context).pushNamed('Customer Care');
-                                                              // showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
-                                                        },
-                                                        child: const Text(
-                                                            'Call Custemor Care')),
+                                                    Container(
+                                                      height: 40,
+                                                      width: 180,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Color(0xFFF5C662),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(107),
+                                                      ),
+                                                      child: ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pushNamed(
+                                                                    'Customer Care');
+                                                            // showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            elevation: 0,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          107),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Call Custemor Care',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black),
+                                                          )),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    ),
                                                     const ElevatedButton(
                                                         onPressed: null,
                                                         child: Text('offline')),
                                                   ],
                                                 ),
-                                                const Text(
-                                                    'Purohith is offline if it\'s urgent please contact customer care ')
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 8),
+                                                  child: const Text(
+                                                      'Purohith is offline if it\'s urgent please contact customer care '),
+                                                )
                                               ],
                                             );
                                           }
@@ -403,7 +469,8 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                         .read(
                                                             makeCallNotifierProvider
                                                                 .notifier)
-                                                        .makeCallRequest( context,
+                                                        .makeCallRequest(
+                                                          context,
                                                           ref
                                                               .read(
                                                                   authProvider)
@@ -411,18 +478,15 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                               .toString(),
                                                           user.mobileno
                                                               .toString(),
-                                                          custemor: false, 
+                                                          custemor: false,
                                                         );
-                                                        showWaitlistDialog(context, ref.read(authProvider).mobileno.toString(), user.username!);
-                                                    // initiateCall(
-                                                    //     context,
-                                                    //     ref,
-                                                    //     user,
-                                                    //     productId,
-                                                    //     category.price == null
-                                                    //         ? 0
-                                                    //         : category.price!);
-                                                    
+                                                    showWaitlistDialog(
+                                                        context,
+                                                        ref
+                                                            .read(authProvider)
+                                                            .mobileno
+                                                            .toString(),
+                                                        user.username!);
                                                   })
                                               : const Text("Insuft balance");
                                         },
@@ -457,6 +521,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
         ));
   }
 }
+
 // Countdown Dialog Widget - Defined outside the main widget
 class CountdownDialog extends StatefulWidget {
   final String username;
