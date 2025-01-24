@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/callmodel.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/carouselimages.dart';
+
 class MakeCallNotifier extends StateNotifier<Call> {
   MakeCallNotifier() : super(Call(amount: 0, minutes: 0, overPulseCount: 50));
   final fbuser = FirebaseAuth.instance.currentUser;
@@ -24,19 +26,24 @@ class MakeCallNotifier extends StateNotifier<Call> {
     );
   }
 
-Future<void> initBackground() async {
-    const androidConfig =  FlutterBackgroundAndroidConfig(
+  Future<void> initBackground() async {
+    const androidConfig = FlutterBackgroundAndroidConfig(
       notificationTitle: "Call Monitoring",
       notificationText: "Monitoring call status in background",
-      notificationIcon: AndroidResource(name: 'background_icon', defType: 'drawable'),
+      notificationIcon:
+          AndroidResource(name: 'background_icon', defType: 'drawable'),
     );
 
     await FlutterBackground.initialize(androidConfig: androidConfig);
     await FlutterBackground.enableBackgroundExecution();
   }
 
-  Future<void> makeCallRequest(BuildContext context, String callerId, String number,
+  Future<void> makeCallRequest(
+      BuildContext context, String callerId, String number,
       {bool? customer, required bool custemor}) async {
+    var arguments = ModalRoute.of(context)!.settings.arguments as Map;
+
+    final user = arguments['user'] as Data;
     final prefs = await SharedPreferences.getInstance();
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot make a call request.");
@@ -56,14 +63,16 @@ Future<void> initBackground() async {
         await databaseReference.child('wallet').child(uid).once();
 
     if (userDataSnapshot.snapshot.value != null) {
-      var currentAmount = (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+      var currentAmount =
+          (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
 
       if (currentAmount < 100) {
         showSnackbar(context, 'Insufficient wallet balance to make a call.');
         return;
       }
     } else {
-      showSnackbar(context, 'Wallet does not exist for the user. Cannot proceed.');
+      showSnackbar(
+          context, 'Wallet does not exist for the user. Cannot proceed.');
       return;
     }
 
@@ -99,8 +108,11 @@ Future<void> initBackground() async {
           print('Error saving callId to SharedPreferences: $e');
         });
 
-        int deductionAmount = 100;
+        int deductionAmount = 140;
         await monitorCallReport(context, callId, deductionAmount);
+
+        // Add the debited amount to the Purohith's wallet
+        await addToWallet(user.id! as String, deductionAmount);
       } else {
         print('Failed to queue call. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -110,7 +122,41 @@ Future<void> initBackground() async {
     }
   }
 
-  Future<void> monitorCallReport(BuildContext context, String callId, int deductionAmount) async {
+  Future<void> addToWallet(String userId, int amount) async {
+    final databaseReference = FirebaseDatabase.instance.ref();
+
+    try {
+      final userDataSnapshot = await databaseReference
+          .child('users')
+          .child(userId)
+          .child('wallet')
+          .once();
+
+      if (userDataSnapshot.snapshot.value != null) {
+        var currentAmount =
+            (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+
+        await databaseReference
+            .child('users')
+            .child(userId)
+            .child('wallet')
+            .update({'amount': currentAmount + amount});
+        print('Amount added to Purohith wallet: $amount');
+      } else {
+        await databaseReference
+            .child('users')
+            .child(userId)
+            .child('wallet')
+            .set({'amount': amount});
+        print('Wallet created for Purohith and amount added: $amount');
+      }
+    } catch (e) {
+      print('Error adding amount to Purohith wallet: $e');
+    }
+  }
+
+  Future<void> monitorCallReport(
+      BuildContext context, String callId, int deductionAmount) async {
     int maxAttempts = 900;
     int attempts = 0;
 
@@ -129,7 +175,8 @@ Future<void> initBackground() async {
     }
   }
 
-  Future<bool> getCallReport(BuildContext context, String callId, int deductionAmount) async {
+  Future<bool> getCallReport(
+      BuildContext context, String callId, int deductionAmount) async {
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot get call report.");
       return false;
@@ -155,24 +202,29 @@ Future<void> initBackground() async {
 
         if (responseData.containsKey('Call')) {
           String endReason = responseData['Call']['EndReason'] ?? '';
-          int duration = int.tryParse(responseData['Call']['Duration'].toString()) ?? 0;
+          int duration =
+              int.tryParse(responseData['Call']['Duration'].toString()) ?? 0;
 
           if (endReason == 'NORMAL_CLEARING') {
-            print('Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
+            print(
+                'Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
             await deductFromWallet(context, deductionAmount);
-            state = Call(amount: deductionAmount, minutes: duration, overPulseCount: 0);
+            state = Call(
+                amount: deductionAmount, minutes: duration, overPulseCount: 0);
             return true;
           } else if (endReason.isEmpty) {
             print('EndReason is empty. Continuing to monitor...');
           } else {
-            print('EndReason: $endReason. No deduction required. Stopping monitoring.');
+            print(
+                'EndReason: $endReason. No deduction required. Stopping monitoring.');
             return true;
           }
         } else {
           print('Call information missing in response.');
         }
       } else {
-        print('Failed to retrieve call report. Status code: ${response.statusCode}');
+        print(
+            'Failed to retrieve call report. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
       }
     } catch (e) {
@@ -182,7 +234,8 @@ Future<void> initBackground() async {
     return false;
   }
 
-  Future<void> deductFromWallet(BuildContext context, int amountToDeduct) async {
+  Future<void> deductFromWallet(
+      BuildContext context, int amountToDeduct) async {
     final databaseReference = FirebaseDatabase.instance.ref();
     final uid = fbuser?.uid;
 
@@ -196,14 +249,16 @@ Future<void> initBackground() async {
           await databaseReference.child('wallet').child(uid).once();
 
       if (userDataSnapshot.snapshot.value != null) {
-        var currentAmount = (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+        var currentAmount =
+            (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
 
         if (currentAmount >= amountToDeduct) {
           await databaseReference
               .child('wallet')
               .child(uid)
               .update({'amount': currentAmount - amountToDeduct});
-          print('Amount deducted: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
+          print(
+              'Amount deducted: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
         } else {
           showSnackbar(context, 'Insufficient wallet balance.');
         }

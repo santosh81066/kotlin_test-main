@@ -501,12 +501,23 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                 return const CustomDialogBox();
                                               });
                                         }),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    print(user.id);
+                                  },
+                                  child: Text(
+                                    'Test',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
                                 Divider(
                                   thickness: screenSize.height * 0.006,
                                   endIndent: screenSize.width * 0.3,
                                   indent: screenSize.width * 0.3,
                                   color: Colors.black,
-                                )
+                                ),
                               ],
                             ),
                           ),
