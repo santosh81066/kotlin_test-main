@@ -7,8 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/callmodel.dart';
 import 'package:http/http.dart' as http;
-
-import '../models/carouselimages.dart';
+import '../models/purohithusers.dart';
 
 class MakeCallNotifier extends StateNotifier<Call> {
   MakeCallNotifier() : super(Call(amount: 0, minutes: 0, overPulseCount: 50));
@@ -41,9 +40,6 @@ class MakeCallNotifier extends StateNotifier<Call> {
   Future<void> makeCallRequest(
       BuildContext context, String callerId, String number,
       {bool? customer, required bool custemor}) async {
-    var arguments = ModalRoute.of(context)!.settings.arguments as Map;
-
-    final user = arguments['user'] as Data;
     final prefs = await SharedPreferences.getInstance();
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot make a call request.");
@@ -110,48 +106,12 @@ class MakeCallNotifier extends StateNotifier<Call> {
 
         int deductionAmount = 140;
         await monitorCallReport(context, callId, deductionAmount);
-
-        // Add the debited amount to the Purohith's wallet
-        await addToWallet(user.id! as String, deductionAmount);
       } else {
         print('Failed to queue call. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
       }
     } catch (e) {
       print('Error making call request: $e');
-    }
-  }
-
-  Future<void> addToWallet(String userId, int amount) async {
-    final databaseReference = FirebaseDatabase.instance.ref();
-
-    try {
-      final userDataSnapshot = await databaseReference
-          .child('users')
-          .child(userId)
-          .child('wallet')
-          .once();
-
-      if (userDataSnapshot.snapshot.value != null) {
-        var currentAmount =
-            (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
-
-        await databaseReference
-            .child('users')
-            .child(userId)
-            .child('wallet')
-            .update({'amount': currentAmount + amount});
-        print('Amount added to Purohith wallet: $amount');
-      } else {
-        await databaseReference
-            .child('users')
-            .child(userId)
-            .child('wallet')
-            .set({'amount': amount});
-        print('Wallet created for Purohith and amount added: $amount');
-      }
-    } catch (e) {
-      print('Error adding amount to Purohith wallet: $e');
     }
   }
 
@@ -238,38 +198,100 @@ class MakeCallNotifier extends StateNotifier<Call> {
       BuildContext context, int amountToDeduct) async {
     final databaseReference = FirebaseDatabase.instance.ref();
     final uid = fbuser?.uid;
-
-    if (uid == null) {
-      showSnackbar(context, 'User not logged in. Cannot deduct from wallet.');
+    var arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    final user = arguments['user'] as Data;
+    final String purohithUserId = '${user.id}';
+    if (uid == null || purohithUserId == null) {
+      showSnackbar(context,
+          'User or Purohith not found. Cannot process wallet transaction.');
       return;
     }
 
     try {
+      // Deduct amount from user's wallet
       final userDataSnapshot =
           await databaseReference.child('wallet').child(uid).once();
-
       if (userDataSnapshot.snapshot.value != null) {
         var currentAmount =
             (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
-
         if (currentAmount >= amountToDeduct) {
           await databaseReference
               .child('wallet')
               .child(uid)
               .update({'amount': currentAmount - amountToDeduct});
           print(
-              'Amount deducted: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
+              'Amount deducted from user: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
         } else {
           showSnackbar(context, 'Insufficient wallet balance.');
+          return;
         }
       } else {
-        showSnackbar(context, 'Wallet does not exist. Please add funds.');
+        showSnackbar(
+            context, 'Wallet does not exist for the user. Cannot proceed.');
+        return;
+      }
+
+      // Credit amount to purohith's wallet
+      final purohithDataSnapshot =
+          await databaseReference.child('wallet').child(purohithUserId).once();
+      if (purohithDataSnapshot.snapshot.value != null) {
+        var currentAmount =
+            (purohithDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+        await databaseReference
+            .child('wallet')
+            .child(purohithUserId)
+            .update({'amount': currentAmount + amountToDeduct});
+        print(
+            'Amount credited to purohith: $amountToDeduct. New balance: ${currentAmount + amountToDeduct}');
+      } else {
+        // Create new wallet for purohith
+        await databaseReference
+            .child('wallet')
+            .child(purohithUserId)
+            .set({'amount': amountToDeduct});
+        print('New wallet created for purohith with balance: $amountToDeduct');
       }
     } catch (e) {
-      showSnackbar(context, 'Error processing wallet deduction.');
-      print('Error deducting wallet balance: $e');
+      showSnackbar(context, 'Error processing wallet transaction.');
+      print('Error deducting/crediting wallet balance: $e');
     }
   }
+  // Future<void> deductFromWallet(
+  //     BuildContext context, int amountToDeduct) async {
+  //   final databaseReference = FirebaseDatabase.instance.ref();
+  //   final uid = fbuser?.uid;
+  //
+  //   if (uid == null) {
+  //     showSnackbar(context, 'User not logged in. Cannot deduct from wallet.');
+  //     return;
+  //   }
+  //
+  //   try {
+  //     final userDataSnapshot =
+  //         await databaseReference.child('wallet').child(uid).once();
+  //
+  //     if (userDataSnapshot.snapshot.value != null) {
+  //       var currentAmount =
+  //           (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+  //
+  //       if (currentAmount >= amountToDeduct) {
+  //         await databaseReference
+  //             .child('wallet')
+  //             .child(uid)
+  //             .update({'amount': currentAmount - amountToDeduct});
+  //         print(
+  //             'Amount deducted: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
+  //       } else {
+  //         showSnackbar(context, 'Insufficient wallet balance.');
+  //       }
+  //     } else {
+  //       showSnackbar(context, 'Wallet does not exist. Please add funds.');
+  //     }
+  //   } catch (e) {
+  //     showSnackbar(context, 'Error processing wallet deduction.');
+  //     print('Error deducting wallet balance: $e');
+  //   }
+  // }
 }
 
 var makeCallNotifierProvider =
