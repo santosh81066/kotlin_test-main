@@ -169,8 +169,8 @@ class MakeCallNotifier extends StateNotifier<Call> {
                 'Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
             await deductFromWallet(context, deductionAmount);
             // 🔥 Call the updatePurohithWallet function here!
+            await updateWalletAmount('NJGGPqQ06EM4P4e6hyo8oKAq1Fg1');
 
-            updatePurohithWallet(140);
             state = Call(
                 amount: deductionAmount, minutes: duration, overPulseCount: 0);
             return true;
@@ -196,27 +196,51 @@ class MakeCallNotifier extends StateNotifier<Call> {
     return false;
   }
 
-  void updatePurohithWallet(int amount) async {
-    DatabaseReference walletRef = FirebaseDatabase.instance
-        .ref()
-        .child('presence')
-        .child('NJGGPqQ06EM4P4e6hyo8oKAq1Fg1')
-        .child('purohithwallet');
+  // void updatePurohithWallet(int amount) async {
+  //   DatabaseReference walletRef = FirebaseDatabase.instance
+  //       .ref()
+  //       .child('presence')
+  //       .child('NJGGPqQ06EM4P4e6hyo8oKAq1Fg1')
+  //       .child('purohithwallet');
+  //
+  //   try {
+  //     final snapshot = await walletRef.get();
+  //
+  //     if (snapshot.exists) {
+  //       // If exists, update the balance
+  //       int currentAmount = snapshot.value as int;
+  //       walletRef.set(currentAmount + amount);
+  //     } else {
+  //       // If doesn't exist, create it
+  //       walletRef.set(amount);
+  //     }
+  //     print("Wallet updated successfully!");
+  //   } catch (error) {
+  //     print("Error updating wallet: $error");
+  //   }
+  // }
 
+  Future<void> updateWalletAmount(String userId) async {
     try {
-      final snapshot = await walletRef.get();
+      final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
 
-      if (snapshot.exists) {
-        // If exists, update the balance
-        int currentAmount = snapshot.value as int;
-        walletRef.set(currentAmount + amount);
-      } else {
-        // If doesn't exist, create it
-        walletRef.set(amount);
-      }
-      print("Wallet updated successfully!");
-    } catch (error) {
-      print("Error updating wallet: $error");
+      // Reference to the specific user's wallet in presence node
+      final DatabaseReference userWalletRef =
+          databaseRef.child('presence').child(userId).child('wallet');
+
+      // Use transaction to safely update the wallet amount
+      await userWalletRef.runTransaction((Object? currentValue) {
+        if (currentValue == null) {
+          return Transaction.success(140);
+        }
+
+        // Convert current value to int and add 140
+        int currentWallet = int.parse(currentValue.toString());
+        return Transaction.success(currentWallet + 140);
+      });
+    } catch (e) {
+      print('Error updating wallet: $e');
+      rethrow;
     }
   }
 
