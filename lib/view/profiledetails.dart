@@ -1,20 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talk2purohith/providers/authnotifier.dart';
 import 'package:talk2purohith/providers/makecallnotifier.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../models/purohithusers.dart';
 import '../providers/categorynotifier.dart';
-import '../providers/userprofiledatanotifier.dart';
-import '../providers/zegeocloudprovider.dart';
 import '../widgets/appbar.dart';
 import '../widgets/button.dart';
 import '../widgets/customdialogbox.dart';
@@ -342,8 +335,6 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                     ],
                                   ),
                                 ),
-                                // onTap =
-
                                 arguments['cattype'] == 'c'
                                     ? StreamBuilder(
                                         stream: combinedStream,
@@ -501,12 +492,23 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                 return const CustomDialogBox();
                                               });
                                         }),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    print(user.id);
+                                  },
+                                  child: Text(
+                                    'Test',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
                                 Divider(
                                   thickness: screenSize.height * 0.006,
                                   endIndent: screenSize.width * 0.3,
                                   indent: screenSize.width * 0.3,
                                   color: Colors.black,
-                                )
+                                ),
                               ],
                             ),
                           ),
