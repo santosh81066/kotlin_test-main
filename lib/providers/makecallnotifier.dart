@@ -24,18 +24,20 @@ class MakeCallNotifier extends StateNotifier<Call> {
     );
   }
 
-Future<void> initBackground() async {
-    const androidConfig =  FlutterBackgroundAndroidConfig(
+  Future<void> initBackground() async {
+    const androidConfig = FlutterBackgroundAndroidConfig(
       notificationTitle: "Call Monitoring",
       notificationText: "Monitoring call status in background",
-      notificationIcon: AndroidResource(name: 'background_icon', defType: 'drawable'),
+      notificationIcon:
+          AndroidResource(name: 'background_icon', defType: 'drawable'),
     );
 
     await FlutterBackground.initialize(androidConfig: androidConfig);
     await FlutterBackground.enableBackgroundExecution();
   }
 
-  Future<void> makeCallRequest(BuildContext context, String callerId, String number,
+  Future<void> makeCallRequest(
+      BuildContext context, String callerId, String number,
       {bool? customer, required bool custemor}) async {
     final prefs = await SharedPreferences.getInstance();
     if (fbuser == null) {
@@ -56,14 +58,16 @@ Future<void> initBackground() async {
         await databaseReference.child('wallet').child(uid).once();
 
     if (userDataSnapshot.snapshot.value != null) {
-      var currentAmount = (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+      var currentAmount =
+          (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
 
       if (currentAmount < 100) {
         showSnackbar(context, 'Insufficient wallet balance to make a call.');
         return;
       }
     } else {
-      showSnackbar(context, 'Wallet does not exist for the user. Cannot proceed.');
+      showSnackbar(
+          context, 'Wallet does not exist for the user. Cannot proceed.');
       return;
     }
 
@@ -99,7 +103,7 @@ Future<void> initBackground() async {
           print('Error saving callId to SharedPreferences: $e');
         });
 
-        int deductionAmount = 100;
+        int deductionAmount = 140;
         await monitorCallReport(context, callId, deductionAmount);
       } else {
         print('Failed to queue call. Status code: ${response.statusCode}');
@@ -110,7 +114,8 @@ Future<void> initBackground() async {
     }
   }
 
-  Future<void> monitorCallReport(BuildContext context, String callId, int deductionAmount) async {
+  Future<void> monitorCallReport(
+      BuildContext context, String callId, int deductionAmount) async {
     int maxAttempts = 900;
     int attempts = 0;
 
@@ -129,7 +134,8 @@ Future<void> initBackground() async {
     }
   }
 
-  Future<bool> getCallReport(BuildContext context, String callId, int deductionAmount) async {
+  Future<bool> getCallReport(
+      BuildContext context, String callId, int deductionAmount) async {
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot get call report.");
       return false;
@@ -155,24 +161,32 @@ Future<void> initBackground() async {
 
         if (responseData.containsKey('Call')) {
           String endReason = responseData['Call']['EndReason'] ?? '';
-          int duration = int.tryParse(responseData['Call']['Duration'].toString()) ?? 0;
+          int duration =
+              int.tryParse(responseData['Call']['Duration'].toString()) ?? 0;
 
           if (endReason == 'NORMAL_CLEARING') {
-            print('Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
+            print(
+                'Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
             await deductFromWallet(context, deductionAmount);
-            state = Call(amount: deductionAmount, minutes: duration, overPulseCount: 0);
+            // 🔥 Call the updatePurohithWallet function here!
+
+            updatePurohithWallet(140);
+            state = Call(
+                amount: deductionAmount, minutes: duration, overPulseCount: 0);
             return true;
           } else if (endReason.isEmpty) {
             print('EndReason is empty. Continuing to monitor...');
           } else {
-            print('EndReason: $endReason. No deduction required. Stopping monitoring.');
+            print(
+                'EndReason: $endReason. No deduction required. Stopping monitoring.');
             return true;
           }
         } else {
           print('Call information missing in response.');
         }
       } else {
-        print('Failed to retrieve call report. Status code: ${response.statusCode}');
+        print(
+            'Failed to retrieve call report. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
       }
     } catch (e) {
@@ -182,7 +196,32 @@ Future<void> initBackground() async {
     return false;
   }
 
-  Future<void> deductFromWallet(BuildContext context, int amountToDeduct) async {
+  void updatePurohithWallet(int amount) async {
+    DatabaseReference walletRef = FirebaseDatabase.instance
+        .ref()
+        .child('presence')
+        .child('NJGGPqQ06EM4P4e6hyo8oKAq1Fg1')
+        .child('purohithwallet');
+
+    try {
+      final snapshot = await walletRef.get();
+
+      if (snapshot.exists) {
+        // If exists, update the balance
+        int currentAmount = snapshot.value as int;
+        walletRef.set(currentAmount + amount);
+      } else {
+        // If doesn't exist, create it
+        walletRef.set(amount);
+      }
+      print("Wallet updated successfully!");
+    } catch (error) {
+      print("Error updating wallet: $error");
+    }
+  }
+
+  Future<void> deductFromWallet(
+      BuildContext context, int amountToDeduct) async {
     final databaseReference = FirebaseDatabase.instance.ref();
     final uid = fbuser?.uid;
 
@@ -196,14 +235,16 @@ Future<void> initBackground() async {
           await databaseReference.child('wallet').child(uid).once();
 
       if (userDataSnapshot.snapshot.value != null) {
-        var currentAmount = (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
+        var currentAmount =
+            (userDataSnapshot.snapshot.value as Map)['amount'] ?? 0;
 
         if (currentAmount >= amountToDeduct) {
           await databaseReference
               .child('wallet')
               .child(uid)
               .update({'amount': currentAmount - amountToDeduct});
-          print('Amount deducted: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
+          print(
+              'Amount deducted: $amountToDeduct. Remaining balance: ${currentAmount - amountToDeduct}');
         } else {
           showSnackbar(context, 'Insufficient wallet balance.');
         }
