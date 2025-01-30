@@ -119,7 +119,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     var arguments = ModalRoute.of(context)!.settings.arguments as Map;
     print('profile details:${arguments['cattype']}');
     final user = arguments['user'] as Data;
-    final callerid = '919515855961';
+    //final callerid = '919100818633';
     final productId = arguments['productId'] as String;
     final DatabaseReference firebaseRealtimeUsersRef =
         FirebaseDatabase.instance.ref().child('presence');
@@ -483,7 +483,9 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                                   authProvider)
                                                               .mobileno
                                                               .toString(),
-                                                          callerid.toString(),
+                                                          user.mobileno
+                                                              .toString(),
+                                                          //callerid.toString(),
                                                           custemor: false,
                                                           purohithUid:
                                                               uniqueFirebaseId,
