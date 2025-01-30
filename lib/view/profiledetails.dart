@@ -119,7 +119,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
     var arguments = ModalRoute.of(context)!.settings.arguments as Map;
     print('profile details:${arguments['cattype']}');
     final user = arguments['user'] as Data;
-    final callerid = '919100818633';
+    final callerid = '919515855961';
     final productId = arguments['productId'] as String;
     final DatabaseReference firebaseRealtimeUsersRef =
         FirebaseDatabase.instance.ref().child('presence');
@@ -457,6 +457,21 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                   buttonname: "Call Purohith",
                                                   width: double.infinity,
                                                   onTap: () {
+                                                    // Find the uniqueFirebaseId first
+                                                    Map<dynamic, dynamic>
+                                                        fbValues = usersSnapshot
+                                                                .snapshot.value
+                                                            as Map<dynamic,
+                                                                dynamic>;
+                                                    String? uniqueFirebaseId;
+                                                    fbValues
+                                                        .forEach((key, value) {
+                                                      if (value['id'] ==
+                                                          user.id) {
+                                                        uniqueFirebaseId = key;
+                                                      }
+                                                    });
+
                                                     ref
                                                         .read(
                                                             makeCallNotifierProvider
@@ -470,6 +485,8 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
                                                               .toString(),
                                                           callerid.toString(),
                                                           custemor: false,
+                                                          purohithUid:
+                                                              uniqueFirebaseId,
                                                         );
                                                     showWaitlistDialog(
                                                         context,

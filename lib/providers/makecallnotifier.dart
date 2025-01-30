@@ -38,7 +38,14 @@ class MakeCallNotifier extends StateNotifier<Call> {
 
   Future<void> makeCallRequest(
       BuildContext context, String callerId, String number,
-      {bool? customer, required bool custemor}) async {
+      {bool? customer, required bool custemor, String? purohithUid}) async {
+    var arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    String amountString =
+        arguments['amount'].toString(); // Ensure it's a string
+    String digitsOnly =
+        amountString.replaceAll(RegExp(r'\D'), ''); // Remove non-digits
+    int price = int.tryParse(digitsOnly) ?? 0;
+
     final prefs = await SharedPreferences.getInstance();
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot make a call request.");
@@ -103,8 +110,8 @@ class MakeCallNotifier extends StateNotifier<Call> {
           print('Error saving callId to SharedPreferences: $e');
         });
 
-        int deductionAmount = 140;
-        await monitorCallReport(context, callId, deductionAmount);
+        int deductionAmount = price;
+        await monitorCallReport(context, callId, deductionAmount, purohithUid);
       } else {
         print('Failed to queue call. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -114,13 +121,14 @@ class MakeCallNotifier extends StateNotifier<Call> {
     }
   }
 
-  Future<void> monitorCallReport(
-      BuildContext context, String callId, int deductionAmount) async {
+  Future<void> monitorCallReport(BuildContext context, String callId,
+      int deductionAmount, String? purohithUid) async {
     int maxAttempts = 900;
     int attempts = 0;
 
     while (attempts < maxAttempts) {
-      bool shouldStop = await getCallReport(context, callId, deductionAmount);
+      bool shouldStop =
+          await getCallReport(context, callId, deductionAmount, purohithUid);
       if (shouldStop) {
         print("Call ended successfully.");
         break;
@@ -134,8 +142,8 @@ class MakeCallNotifier extends StateNotifier<Call> {
     }
   }
 
-  Future<bool> getCallReport(
-      BuildContext context, String callId, int deductionAmount) async {
+  Future<bool> getCallReport(BuildContext context, String callId,
+      int deductionAmount, String? purohithUid) async {
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot get call report.");
       return false;
@@ -169,7 +177,7 @@ class MakeCallNotifier extends StateNotifier<Call> {
                 'Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
             await deductFromWallet(context, deductionAmount);
             // 🔥 Call the updatePurohithWallet function here!
-            await updateWalletAmount('NJGGPqQ06EM4P4e6hyo8oKAq1Fg1');
+            await updateWalletAmount(context, purohithUid!);
 
             state = Call(
                 amount: deductionAmount, minutes: duration, overPulseCount: 0);
@@ -220,7 +228,15 @@ class MakeCallNotifier extends StateNotifier<Call> {
   //   }
   // }
 
-  Future<void> updateWalletAmount(String userId) async {
+  Future<void> updateWalletAmount(BuildContext context, String userId) async {
+    var arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    String amountString =
+        arguments['amount'].toString(); // Ensure it's a string
+    String digitsOnly =
+        amountString.replaceAll(RegExp(r'\D'), ''); // Remove non-digits
+    int price = int.tryParse(digitsOnly) ??
+        0; // Convert to int, default to 0 if parsing fails
+
     try {
       final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
 
@@ -228,16 +244,18 @@ class MakeCallNotifier extends StateNotifier<Call> {
       final DatabaseReference userWalletRef =
           databaseRef.child('presence').child(userId).child('wallet');
 
-      // Use transaction to safely update the wallet amount
       await userWalletRef.runTransaction((Object? currentValue) {
         if (currentValue == null) {
-          return Transaction.success(140);
+          // If wallet does not exist, create it with initial amount 140
+          return Transaction.success(price);
         }
 
         // Convert current value to int and add 140
-        int currentWallet = int.parse(currentValue.toString());
-        return Transaction.success(currentWallet + 140);
+        int currentWallet = int.tryParse(currentValue.toString()) ?? 0;
+        return Transaction.success(currentWallet + price);
       });
+
+      print('Wallet updated successfully for user: $userId');
     } catch (e) {
       print('Error updating wallet: $e');
       rethrow;
