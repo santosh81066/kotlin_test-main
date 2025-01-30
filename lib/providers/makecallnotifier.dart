@@ -236,7 +236,7 @@ class MakeCallNotifier extends StateNotifier<Call> {
         amountString.replaceAll(RegExp(r'\D'), ''); // Remove non-digits
     int price = int.tryParse(digitsOnly) ??
         0; // Convert to int, default to 0 if parsing fails
-
+    int finalprice = (price * 0.9).toInt();
     try {
       final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
 
@@ -247,12 +247,12 @@ class MakeCallNotifier extends StateNotifier<Call> {
       await userWalletRef.runTransaction((Object? currentValue) {
         if (currentValue == null) {
           // If wallet does not exist, create it with initial amount 140
-          return Transaction.success(price);
+          return Transaction.success(finalprice);
         }
 
         // Convert current value to int and add 140
         int currentWallet = int.tryParse(currentValue.toString()) ?? 0;
-        return Transaction.success(currentWallet + price);
+        return Transaction.success(currentWallet + finalprice);
       });
 
       print('Wallet updated successfully for user: $userId');
