@@ -130,7 +130,7 @@ class MakeCallNotifier extends StateNotifier<Call> {
       bool shouldStop =
           await getCallReport(context, callId, deductionAmount, purohithUid);
       if (shouldStop) {
-        print("Call ended successfully.");
+        print("Call ended successfully. Stopping monitoring.");
         break;
       }
       attempts++;
@@ -147,6 +147,14 @@ class MakeCallNotifier extends StateNotifier<Call> {
     if (fbuser == null) {
       showSnackbar(context, "User not logged in. Cannot get call report.");
       return false;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    bool alreadyDeducted = prefs.getBool('deduction_$callId') ?? false;
+
+    if (alreadyDeducted) {
+      print("Amount already deducted for this call. Skipping deduction.");
+      return true; // Stop monitoring
     }
 
     final url =
@@ -175,19 +183,21 @@ class MakeCallNotifier extends StateNotifier<Call> {
           if (endReason == 'NORMAL_CLEARING') {
             print(
                 'Call ended with NORMAL_CLEARING. Deducting amount: $deductionAmount');
+
+            // **Ensure deduction happens only once**
+            await prefs.setBool('deduction_$callId', true);
             await deductFromWallet(context, deductionAmount);
-            // 🔥 Call the updatePurohithWallet function here!
             await updateWalletAmount(context, purohithUid!);
 
             state = Call(
                 amount: deductionAmount, minutes: duration, overPulseCount: 0);
-            return true;
+            return true; // Stop monitoring
           } else if (endReason.isEmpty) {
             print('EndReason is empty. Continuing to monitor...');
           } else {
             print(
                 'EndReason: $endReason. No deduction required. Stopping monitoring.');
-            return true;
+            return true; // Stop monitoring for non-NORMAL_CLEARING cases
           }
         } else {
           print('Call information missing in response.');
