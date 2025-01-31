@@ -30,7 +30,6 @@ class ProfileData {
         'messages': messages,
         'data': data?.map((e) => e.toJson()).toList()
       };
-
   ProfileData updateUserProfile(String id, UserProfileData updatedUserProfile) {
     final updatedUsers = data ?? [];
     final userIndex = updatedUsers.indexWhere((user) => user.id == id);
@@ -42,21 +41,6 @@ class ProfileData {
       success: success,
       messages: messages,
       data: updatedUsers,
-    );
-  }
-
-  /// Adds a copyWith method to allow easy updates to the model.
-  ProfileData copyWith({
-    int? statusCode,
-    bool? success,
-    List<String>? messages,
-    List<UserProfileData>? data,
-  }) {
-    return ProfileData(
-      statusCode: statusCode ?? this.statusCode,
-      success: success ?? this.success,
-      messages: messages ?? this.messages,
-      data: data ?? this.data,
     );
   }
 }
@@ -77,7 +61,7 @@ class UserProfileData {
   final dynamic location;
   final dynamic dateofbirth;
   final String? placeofbirth;
-  late final XFile? xfile;
+  XFile? _xfile;
 
   UserProfileData({
     this.id,
@@ -95,8 +79,8 @@ class UserProfileData {
     this.location,
     this.dateofbirth,
     this.placeofbirth,
-    this.xfile,
-  });
+    XFile? xfile, // add this parameter to the constructor
+  }) : _xfile = xfile;
 
   UserProfileData.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
@@ -112,9 +96,9 @@ class UserProfileData {
         imageurl = json['imageurl'] as String?,
         adharno = json['adharno'],
         location = json['location'],
-        dateofbirth = json['dob'],
-        placeofbirth = json['pob'] as String?,
-        xfile = null;
+        dateofbirth = json['dateofbirth'],
+        placeofbirth = json['placeofbirth'] as String?,
+        _xfile = null; // initialize the property to null
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -130,47 +114,13 @@ class UserProfileData {
         'imageurl': imageurl,
         'adharno': adharno,
         'location': location,
-        'dob': dateofbirth,
-        'pob': placeofbirth,
+        'dateofbirth': dateofbirth,
+        'placeofbirth': placeofbirth,
       };
 
-  /// Adds a copyWith method to allow easy updates to the model.
-  UserProfileData copyWith({
-    int? id,
-    String? username,
-    int? mobileno,
-    String? profilepic,
-    dynamic adhar,
-    dynamic languages,
-    dynamic expirience,
-    String? role,
-    int? userstatus,
-    dynamic isonline,
-    String? imageurl,
-    dynamic adharno,
-    dynamic location,
-    dynamic dateofbirth,
-    String? placeofbirth,
-    XFile? xfile,
-  }) {
-    return UserProfileData(
-      id: id ?? this.id,
-      username: username ?? this.username,
-      mobileno: mobileno ?? this.mobileno,
-      profilepic: profilepic ?? this.profilepic,
-      adhar: adhar ?? this.adhar,
-      languages: languages ?? this.languages,
-      expirience: expirience ?? this.expirience,
-      role: role ?? this.role,
-      userstatus: userstatus ?? this.userstatus,
-      isonline: isonline ?? this.isonline,
-      imageurl: imageurl ?? this.imageurl,
-      adharno: adharno ?? this.adharno,
-      location: location ?? this.location,
-      dateofbirth: dateofbirth ?? this.dateofbirth,
-      placeofbirth: placeofbirth ?? this.placeofbirth,
-      xfile: xfile ?? this.xfile,
-    );
+  XFile? get xfile => _xfile;
+
+  set xfile(XFile? value) {
+    _xfile = value;
   }
 }
-                                      

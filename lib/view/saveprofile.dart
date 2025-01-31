@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../controller/user_intraction_manager.dart';
 import '../models/profiledata.dart';
 import '../providers/userprofiledatanotifier.dart';
-import 'account.dart';
 
 class SaveProfile extends ConsumerStatefulWidget {
   const SaveProfile({super.key});
@@ -18,6 +18,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
   bool init = true;
   bool automaticallyImplyLeading = true;
   String initialDateOfBirth = '';
+  File? currentImageFile;
   final _usernameController = TextEditingController();
   final _dateOfBirthController = TextEditingController();
   final _placeOfBirthController = TextEditingController();
@@ -26,12 +27,42 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     if (init) {
       final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
-      if (arguments != null && arguments.containsKey('automaticallyImplyLeading')) {
-        automaticallyImplyLeading = arguments['automaticallyImplyLeading'] as bool;
+      if (arguments != null &&
+          arguments.containsKey('automaticallyImplyLeading')) {
+        automaticallyImplyLeading =
+            arguments['automaticallyImplyLeading'] as bool;
       }
+
+      // Load initial data for the image, username, date of birth, and place of birth
+      final userProfileData = ref.read(userProfileDataProvider);
+      if (userProfileData.data != null) {
+        // Load default image if available
+        ref
+            .read(userProfileDataProvider.notifier)
+            .getImageFile(context)
+            .then((file) {
+          if (file != null) {
+            setState(() {
+              currentImageFile = file;
+            });
+          }
+        });
+
+        // Populate other initial form fields
+        if (userProfileData.data![0].dateofbirth != null) {
+          initialDateOfBirth = userProfileData.data![0].dateofbirth!;
+          _dateOfBirthController.text = initialDateOfBirth;
+        }
+        if (userProfileData.data![0].username != null) {
+          _usernameController.text = userProfileData.data![0].username!;
+        }
+        if (userProfileData.data![0].placeofbirth != null) {
+          _placeOfBirthController.text = userProfileData.data![0].placeofbirth!;
+        }
+      }
+
       init = false;
     }
   }
@@ -46,38 +77,9 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
 
   @override
   Widget build(BuildContext context) {
-    print("build save profile");
     final userProfileData = ref.watch(userProfileDataProvider);
     final userInteractionManager = ref.watch(userInteractionManagerProvider);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (userProfileData.data != null) {
-        final userData = userProfileData.data![0];
-
-        if (userData.username != null && _usernameController.text != userData.username) {
-          _usernameController.text = userData.username!;
-        }
-
-        if (userProfileData.data![0].dateofbirth != null &&
-            userInteractionManager.dateAndTimeOfBirth == null &&
-            userInteractionManager.selectedTimeOfBirth == null) {
-          initialDateOfBirth = userProfileData.data![0].dateofbirth!;
-          _dateOfBirthController.text = initialDateOfBirth;
-        } else if (userProfileData.data![0].dateofbirth != null &&
-            userInteractionManager.dateAndTimeOfBirth != null &&
-            userInteractionManager.selectedTimeOfBirth != null) {
-          initialDateOfBirth =
-              '${userInteractionManager.dateOfBirth} ${userInteractionManager.selectedTimeOfBirth!.hour.toString().padLeft(2, '0')}:${userInteractionManager.selectedTimeOfBirth!.minute.toString().padLeft(2, '0')}';
-          _dateOfBirthController.text = initialDateOfBirth;
-        }
-
-        if (userData.placeofbirth != null && _placeOfBirthController.text != userData.placeofbirth) {
-          _placeOfBirthController.text = userData.placeofbirth!;
-        }
-      }
-    });
-
-    File? currentImageFile;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: automaticallyImplyLeading,
@@ -106,9 +108,17 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                                 onTap: () async {
                                   Navigator.pop(context);
                                   final pickedFile =
-                                      await userInteractionManager.onImageButtonPress(ImageSource.camera);
+                                      await userInteractionManager
+                                          .onImageButtonPress(
+                                              ImageSource.camera);
                                   if (pickedFile != null) {
-                                    ref.read(userProfileDataProvider.notifier).setImageFile(pickedFile);
+                                    setState(() {
+                                      currentImageFile = File(pickedFile
+                                          .path); // Update immediately
+                                    });
+                                    ref
+                                        .read(userProfileDataProvider.notifier)
+                                        .setImageFile(pickedFile);
                                   }
                                 },
                               ),
@@ -118,9 +128,17 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                                 onTap: () async {
                                   Navigator.pop(context);
                                   final pickedFile =
-                                      await userInteractionManager.onImageButtonPress(ImageSource.gallery);
+                                      await userInteractionManager
+                                          .onImageButtonPress(
+                                              ImageSource.gallery);
                                   if (pickedFile != null) {
-                                    ref.read(userProfileDataProvider.notifier).setImageFile(pickedFile);
+                                    setState(() {
+                                      currentImageFile = File(pickedFile
+                                          .path); // Update immediately
+                                    });
+                                    ref
+                                        .read(userProfileDataProvider.notifier)
+                                        .setImageFile(pickedFile);
                                   }
                                 },
                               ),
@@ -130,41 +148,21 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                       },
                     );
                   },
-                  child: Consumer(
-                    builder: (con, ref, child) {
-                      return FutureBuilder<File?>(
-                        future: ref.read(userProfileDataProvider.notifier).getImageFile(context),
-                        builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            if (snapshot.hasData && snapshot.data != null) {
-                              final file = snapshot.data!;
-                              currentImageFile = file;
-                              return CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: FileImage(file),
-                              );
-                            } else {
-                              return const CircleAvatar(
-                                radius: 50.0,
-                                child: Icon(Icons.person, size: 50.0),
-                              );
-                            }
-                          } else {
-                            return const CircleAvatar(
-                              radius: 50.0,
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                        },
-                      );
-                    },
+                  child: CircleAvatar(
+                    radius: 50.0,
+                    backgroundImage: currentImageFile != null
+                        ? FileImage(currentImageFile!)
+                        : null,
+                    child: currentImageFile == null
+                        ? const Icon(Icons.person, size: 50.0)
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  validator: (validator) {
-                    if (validator == null || validator.isEmpty) {
-                      return "please enter display name";
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter a display name";
                     }
                     return null;
                   },
@@ -175,7 +173,8 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                 ),
                 Consumer(
                   builder: (context, ref, child) {
-                    final userInteractionManager = ref.watch(userInteractionManagerProvider);
+                    final userInteractionManager =
+                        ref.watch(userInteractionManagerProvider);
                     if (userInteractionManager.dateAndTimeOfBirth != null &&
                         userInteractionManager.selectedTimeOfBirth != null) {
                       String formattedTime =
@@ -185,9 +184,9 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                     }
 
                     return TextFormField(
-                      validator: (validator) {
-                        if (validator == null || validator.isEmpty) {
-                          return "please select date and time";
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please select date and time";
                         }
                         return null;
                       },
@@ -196,18 +195,17 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                         labelText: 'Date of Birth',
                       ),
                       readOnly: true,
-                      onTap: () {
-                        Future.delayed(Duration.zero)
-                            .then((value) => userInteractionManager.dateofbirth(context))
-                            .then((value) => userInteractionManager.selectTimeOfBirth(context));
+                      onTap: () async {
+                        await userInteractionManager.dateofbirth(context);
+                        await userInteractionManager.selectTimeOfBirth(context);
                       },
                     );
                   },
                 ),
                 TextFormField(
-                  validator: (validator) {
-                    if (validator == null || validator.isEmpty) {
-                      return "please enter place of birth";
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter place of birth";
                     }
                     return null;
                   },
@@ -219,6 +217,7 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                 const SizedBox(height: 16.0),
                 Consumer(
                   builder: (context, ref, child) {
+                    var userData = ref.read(userProfileDataProvider);
                     return ElevatedButton(
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
@@ -228,28 +227,35 @@ class _SaveProfileState extends ConsumerState<SaveProfile> {
                             dateofbirth: _dateOfBirthController.text,
                             placeofbirth: _placeOfBirthController.text,
                           );
-                          await ref.read(userProfileDataProvider.notifier).updateUser(
-                              _usernameController.text, _placeOfBirthController.text, _dateOfBirthController.text, context);
-                          await ref.read(userProfileDataProvider.notifier).updateUserModel(
-                              userProfileData.data![0].id!.toString(), updatedUser)
-                              .then((value) => Future.delayed(Duration.zero)
-                                  .then((value) => showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: const Text('Success'),
-                                            content: const Text('Profile updated successfully'),
-                                            actions: [
-                                              ElevatedButton(
-                                                child: const Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pushNamed(context, 'wellcome');
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      )));
+                          await ref
+                              .read(userProfileDataProvider.notifier)
+                              .updateUser(
+                                  _usernameController.text,
+                                  _placeOfBirthController.text,
+                                  _dateOfBirthController.text,
+                                  context);
+                          await ref
+                              .read(userProfileDataProvider.notifier)
+                              .updateUserModel(
+                                  userData.data![0].id!.toString(), updatedUser)
+                              .then((_) => showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Success'),
+                                        content: const Text(
+                                            'Profile updated successfully'),
+                                        actions: [
+                                          ElevatedButton(
+                                            child: const Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ));
                         }
                       },
                       child: const Text('Save Profile'),

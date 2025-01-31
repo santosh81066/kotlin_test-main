@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' as platform;
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -24,22 +25,29 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
   final AuthNotifier authNotifier;
   UserProfileDataNotifier(this.authNotifier) : super(ProfileData());
 
-  /// Sets the image file and updates both the state and SharedPreferences.
-  void setImageFile(XFile? file) async {
+  void setImageFile(XFile? file) {
     if (file != null) {
-      state = state.copyWith(
-        data: [
-          state.data![0].copyWith(xfile: file),
-        ],
+      state.data![0] = UserProfileData(
+        id: state.data![0].id,
+        username: state.data![0].username,
+        mobileno: state.data![0].mobileno,
+        profilepic: state.data![0].profilepic,
+        adhar: state.data![0].adhar,
+        languages: state.data![0].languages,
+        expirience: state.data![0].expirience,
+        role: state.data![0].role,
+        userstatus: state.data![0].userstatus,
+        isonline: state.data![0].isonline,
+        imageurl: state.data![0].imageurl,
+        adharno: state.data![0].adharno,
+        location: state.data![0].location,
+        dateofbirth: state.data![0].dateofbirth,
+        placeofbirth: state.data![0].placeofbirth,
+        xfile: file, // Update the xfile field
       );
-
-      // Save updated state to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('userResponse', json.encode(state.toJson()));
     }
   }
 
-  /// Retrieves the image file associated with the user.
   Future<platform.File?> getImageFile(BuildContext context) async {
     if (state.data != null) {
       final data = state.data![0];
@@ -53,126 +61,129 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
     return null;
   }
 
-  /// Retrieves the user profile picture from local storage or API.
-  Future<Uint8List?> getUserPic(BuildContext context, WidgetRef ref) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? savedUserResponseJson = prefs.getString('userResponse');
-
-    if (savedUserResponseJson != null) {
-      Map<String, dynamic> savedUserResponse =
-          json.decode(savedUserResponseJson);
-      state = ProfileData.fromJson(savedUserResponse);
-
-      if (state.data != null) {
-        var profilePic = state.data![0].profilepic;
-        if (profilePic != null) {
-          final directory = await getApplicationDocumentsDirectory();
-          final imagePath = '${directory.path}/$profilePic';
-          final imageFile = platform.File(imagePath);
-
-          if (await imageFile.exists()) {
-            return await imageFile.readAsBytes();
-          }
-        }
-      }
-    }
-    print('Profile Pic: ${state.data![0].profilepic}');
-
-    return null;
-  }
-
-  /// Fetches the user data, rehydrates state from SharedPreferences if available.
   Future<void> getUser(BuildContext cont, WidgetRef ref) async {
-    print('get user started');
+    print('DEBUG: getUser method started');
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Check for cached user data
-    String? savedUserResponseJson = prefs.getString('userResponse');
-    if (savedUserResponseJson != null) {
-      Map<String, dynamic> savedUserResponse =
-          json.decode(savedUserResponseJson);
-      state = ProfileData.fromJson(savedUserResponse);
+    try {
+      String? savedUserResponseJson = prefs.getString('userResponse');
 
-      Future.delayed(Duration.zero).then(
-        (value) => navigateBasedOnUserData(cont),
+      if (savedUserResponseJson != null) {
+        Map<String, dynamic> savedUserResponse =
+            json.decode(savedUserResponseJson);
+        state = ProfileData.fromJson(savedUserResponse);
+
+        print('DEBUG: Saved user data loaded');
+        print('DEBUG: Username: ${state.data?[0].username}');
+        print('DEBUG: Profile complete: ${prefs.getBool('profile')}');
+      }
+
+      final url = PurohitApi().baseUrl + PurohitApi().login;
+      final token = authNotifier.state.accessToken;
+      final databaseReference = FirebaseDatabase.instance.ref();
+      final fbuser = FirebaseAuth.instance.currentUser;
+      final uid = fbuser?.uid;
+
+      if (token == null) {
+        print('DEBUG: No access token found');
+        // Handle case where no token exists
+        Navigator.of(cont).pushReplacementNamed('login');
+        loadingState.state = false;
+        return;
+      }
+
+      final client = RetryClient(
+        http.Client(),
+        retries: 4,
+        when: (response) {
+          return response.statusCode == 401 ? true : false;
+        },
+        onRetry: (req, res, retryCount) async {
+          if (retryCount == 0 && res?.statusCode == 401) {
+            var accessToken =
+                await authNotifier.restoreAccessToken(call: "get user");
+            req.headers['Authorization'] = accessToken;
+          }
+        },
       );
-      return; // Exit if data is already available
-    }
 
-    // Proceed with fetching data from API
-    final url = PurohitApi().baseUrl + PurohitApi().login;
-    final token = authNotifier.state.accessToken;
-    final databaseReference = FirebaseDatabase.instance.ref();
-    final fbuser = FirebaseAuth.instance.currentUser;
-    final uid = fbuser?.uid;
+      var response = await client.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': token
+        },
+      );
 
-    final client = RetryClient(
-      http.Client(),
-      retries: 4,
-      when: (response) => response.statusCode == 401,
-      onRetry: (req, res, retryCount) async {
-        if (retryCount == 0 && res?.statusCode == 401) {
-          var accessToken =
-              await authNotifier.restoreAccessToken(call: "get user");
-          req.headers['Authorization'] = accessToken;
+      Map<String, dynamic> userResponse = json.decode(response.body);
+      state = ProfileData.fromJson(userResponse);
+
+      print('DEBUG: Server user response received');
+      print('DEBUG: Server username: ${state.data?[0].username}');
+
+      if (state.data != null && state.data!.isNotEmpty) {
+        await prefs.setString('userResponse', json.encode(userResponse));
+        var userData = state.data![0];
+
+        // Detailed navigation logic with extensive logging
+        if (userData.username == null || userData.username!.isEmpty) {
+          print('DEBUG: No username, navigating to saveprofile');
+          Navigator.of(cont).pushReplacementNamed('saveprofile');
+        } else {
+          print('DEBUG: Username exists, setting profile to true');
+          await prefs.setBool('profile', true);
+
+          // Check current route before navigation
+          bool isAlreadyOnWelcome = false;
+          Navigator.popUntil(cont, (route) {
+            if (route.settings.name == 'wellcome') {
+              isAlreadyOnWelcome = true;
+            }
+            return true;
+          });
+
+          if (!isAlreadyOnWelcome) {
+            print('DEBUG: Navigating to wellcome page');
+            Navigator.of(cont).pushReplacementNamed('wellcome');
+          } else {
+            print('DEBUG: Already on wellcome page, skipping navigation');
+          }
         }
-      },
-    );
-
-    var response = await client.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token!
-      },
-    );
-
-    Map<String, dynamic> userResponse = json.decode(response.body);
-    state = ProfileData.fromJson(userResponse);
-
-    if (state.data != null && state.data!.isNotEmpty) {
-      await prefs.setString('userResponse', json.encode(userResponse));
-      var userData = state.data![0];
-
-      final userDataSnapshot = await databaseReference
-          .child('users')
-          .child(uid!)
-          .orderByChild('id')
-          .equalTo('${userData.id}')
-          .once();
-
-      if (userDataSnapshot.snapshot.value == null) {
-        await databaseReference
-            .child('users')
-            .child(uid)
-            .set(userData.toJson());
-      }
-
-      if (userData.username == null || userData.username!.isEmpty) {
-        Navigator.of(cont).pushReplacementNamed('saveprofile');
       } else {
-        await prefs.setBool('profile', true);
-        Navigator.of(cont).pushReplacementNamed('wellcome');
+        print('DEBUG: No user data received from server');
+        // Handle case with no user data
+        Navigator.of(cont).pushReplacementNamed('login');
       }
+    } catch (e) {
+      print('DEBUG: Error in getUser method: $e');
+      // Handle error - maybe navigate to login or show error
+      Navigator.of(cont).pushReplacementNamed('login');
+    } finally {
+      loadingState.state = false;
     }
-    loadingState.state = false;
   }
 
-  /// Updates the user details and persists the changes in SharedPreferences.
   Future updateUser(
       String? username, String? pob, String? dob, BuildContext context) async {
     const url = "https://talk2purohit.com/saveprofile";
     String randomLetters = generateRandomLetters(10);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = authNotifier.state.accessToken;
-
     try {
+      print('Updating user with:');
+      print('Username: $username');
+      print('Place of Birth: $pob');
+      print('Date of Birth: $dob');
+      print('Has image file: ${state.data![0].xfile != null}');
+
       final client = RetryClient(
         http.Client(),
         retries: 4,
-        when: (response) => response.statusCode == 401,
+        when: (response) {
+          return response.statusCode == 401 ? true : false;
+        },
         onRetry: (req, res, retryCount) async {
           if (retryCount == 0 && res?.statusCode == 401) {
             var accessToken = await authNotifier.restoreAccessToken();
@@ -182,14 +193,19 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
       );
 
       var request = http.MultipartRequest('POST', Uri.parse(url));
-      request.headers.addAll({'Authorization': token!});
+      request.headers.addAll({
+        'Authorization': token!,
+      });
       request.fields['username'] = username!;
       request.fields['dob'] = dob!;
       request.fields['pob'] = pob!;
+
       if (state.data![0].profilepic == null) {
         request.fields['profilepic'] = "${randomLetters}_profilepic";
       }
+
       if (state.data![0].xfile != null) {
+        print('Image file path: ${state.data![0].xfile!.path}');
         request.files.add(await http.MultipartFile.fromPath(
             'image', state.data![0].xfile!.path));
       }
@@ -198,36 +214,81 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
       var responseBody = await response.stream.bytesToString();
       var jsonResponse = json.decode(responseBody);
 
+      print("Update response status: ${response.statusCode}");
+      print("Update response body: $jsonResponse");
+
       if (response.statusCode == 200) {
+        // Update local SharedPreferences with new user data
+        await prefs.setString(
+            'userResponse',
+            json.encode({
+              'data': [
+                {
+                  'id': state.data![0].id,
+                  'username': username,
+                  'dateofbirth': dob,
+                  'placeofbirth': pob,
+                  // Add other fields as needed
+                }
+              ]
+            }));
+
+        // Update the current state
+        state = ProfileData.fromJson({
+          'data': [
+            {
+              'id': state.data![0].id,
+              'username': username,
+              'dateofbirth': dob,
+              'placeofbirth': pob,
+              // Preserve other existing fields
+              ...state.data![0].toJson()
+            }
+          ]
+        });
+
         prefs.setBool('profile', true);
-
-        // Update local state
-        state = state.copyWith(
-          data: [
-            state.data![0].copyWith(
-              username: username,
-              placeofbirth: pob,
-              dateofbirth: dob,
-            ),
-          ],
-        );
-
-        // Persist updated state
-        prefs.setString('userResponse', json.encode(state.toJson()));
       }
 
       return jsonResponse["success"];
     } catch (e) {
+      print('Error updating user: $e');
       return false;
     }
   }
 
-  /// Updates user model and persists the changes in SharedPreferences.
-  Future<void> updateUserModel(String id, UserProfileData newUser) async {
-    state = state.updateUserProfile(id, newUser);
+  void navigateBasedOnUserData(BuildContext context) {
+    print('DEBUG: navigateBasedOnUserData called');
 
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('userResponse', json.encode(state.toJson()));
+    if (state.data != null && state.data!.isNotEmpty) {
+      var userData = state.data![0];
+
+      // Extensive logging
+      print('DEBUG: User data exists');
+      print('DEBUG: Username: ${userData.username}');
+
+      // Check if already on welcome page to prevent repeated navigation
+      bool isCurrentRouteWelcome = false;
+      Navigator.popUntil(context, (route) {
+        if (route.settings.name == 'wellcome') {
+          isCurrentRouteWelcome = true;
+        }
+        return true;
+      });
+
+      if (userData.username != null && !isCurrentRouteWelcome) {
+        print('DEBUG: Navigating to wellcome page');
+        Navigator.of(context).pushNamed('wellcome');
+      } else if (userData.username == null && !isCurrentRouteWelcome) {
+        print('DEBUG: Navigating to saveprofile page');
+        Navigator.of(context).pushReplacementNamed('saveprofile');
+      } else {
+        print('DEBUG: No navigation needed');
+      }
+    } else {
+      print('DEBUG: No user data found');
+      // Consider navigating to login or handling this case
+    }
   }
 
   String generateRandomLetters(int length) {
@@ -236,25 +297,79 @@ class UserProfileDataNotifier extends StateNotifier<ProfileData> {
     return String.fromCharCodes(letters);
   }
 
-  void navigateBasedOnUserData(BuildContext context) {
-    if (state.data != null) {
-      var userData = state.data![0];
-
-      // Check if the current route is 'home'
-      bool isCurrentRouteHome = false;
-      Navigator.popUntil(context, (route) {
-        if (route.settings.name == 'wellcome') {
-          isCurrentRouteHome = true;
-        }
-        return true;
-      });
-
-      if (userData.username != null && !isCurrentRouteHome) {
-        Navigator.of(context).pushNamed('wellcome');
-      } else if (userData.username == null && !isCurrentRouteHome) {
-        Navigator.of(context).pushReplacementNamed('saveprofile');
+  Future<void> getUserPic(BuildContext cont, WidgetRef ref) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final url = PurohitApi().baseUrl + PurohitApi().userProfile;
+    final loadingState = ref.read(loadingProvider.notifier);
+    loadingState.state = true;
+    final token = authNotifier.state.accessToken;
+    // Check for cached image
+    String? cachedBase64String = prefs.getString('userProfilePic');
+    if (cachedBase64String != null) {
+      final Uint8List bytes = base64Decode(cachedBase64String);
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/profile');
+      await file.writeAsBytes(bytes);
+      if (state.data != null) {
+        state.data![0].xfile = XFile(file.path);
       }
+      loadingState.state = false;
+      return;
     }
+    final client = RetryClient(
+      http.Client(),
+      retries: 4,
+      when: (response) {
+        return response.statusCode == 401 ? true : false;
+      },
+      onRetry: (req, res, retryCount) async {
+        if (retryCount == 0 && res?.statusCode == 401) {
+          var accessToken =
+              await authNotifier.restoreAccessToken(call: "get user pic");
+          // Only this block can run (once) until done
+
+          req.headers['Authorization'] = accessToken;
+        }
+      },
+    );
+    var response = await client.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token!
+      },
+    );
+    //Map<String, dynamic> userResponse = json.decode(response.body);
+
+    switch (response.statusCode) {
+      case 200:
+
+        // Attempt to create an Image object from the image bytes
+        // final image = Image.memory(resbytes);
+        final Uint8List resbytes = response.bodyBytes;
+
+        // Cache image
+        String base64String = base64Encode(resbytes);
+        await prefs.setString('userProfilePic', base64String);
+
+        final tempDir = await getTemporaryDirectory();
+        final file = File('${tempDir.path}/profile');
+        await file.writeAsBytes(resbytes);
+        if (state.data != null) {
+          state.data![0].xfile = XFile(file.path);
+        }
+
+        // If the image was created successfully, the bytes are in a valid format
+
+        loadingState.state = false;
+    }
+
+    // print(
+    //     "this is from getuserPic:${userDetails!.data![0].xfile!.readAsBytes()}");
+  }
+
+  Future<void> updateUserModel(String id, UserProfileData newUser) async {
+    state = state.updateUserProfile(id, newUser);
   }
 }
 
