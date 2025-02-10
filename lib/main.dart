@@ -42,17 +42,6 @@ void main() {
 
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
-    // ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
-
-    // try {
-    //   await ZegoUIKit().initLog();
-    //   ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-    //     [ZegoUIKitSignalingPlugin()],
-    //   );
-    // } on PlatformException catch (e) {
-    //   print('PlatformException was thrown: ${e.message}');
-    // }
-
     runApp(
       ProviderScope(child: MyApp(navigatorKey: navigatorKey)),
     );

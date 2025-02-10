@@ -15,6 +15,7 @@ import 'locationstatenotifier.dart';
 
 class Registeraspurohith extends StateNotifier<RegisterAsPurohith> {
   Registeraspurohith() : super(RegisterAsPurohith.initial());
+
   Future register(String mobileno, String expirience, String languages,
       String userName, BuildContext context, WidgetRef ref) async {
     final categoryNotifier = ref.read(categoryProvider.notifier);
@@ -47,14 +48,6 @@ class Registeraspurohith extends StateNotifier<RegisterAsPurohith> {
       loadingState.state = true;
       var response = http.MultipartRequest('POST', Uri.parse(url));
 
-// Check if the adhar image is available and not null
-      // if (flutterFunctions.imageFileList['adhar'] != null) {
-      //   response.files.add(await http.MultipartFile.fromPath(
-      //       "imagefile[]", flutterFunctions.imageFileList['adhar']!.path,
-      //       contentType: parser.MediaType("image", "jpg")));
-      // }
-
-// Check if the profile image is available and not null
       if (imagePickerState.imageFileList['profile'] != null) {
         response.files.add(await http.MultipartFile.fromPath(
           "imagefile[]",

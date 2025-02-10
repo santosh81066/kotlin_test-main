@@ -134,7 +134,8 @@ class UserList extends ConsumerWidget {
                               child: Text(
                                 '₹ ${category.price ?? 0}',
                                 softWrap: true,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -174,9 +175,21 @@ class UserList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Experience: ${user.expirience}',
-          softWrap: true,
+        Row(
+          children: [
+            const Icon(
+              Icons.star,
+              color: Color(0xFFF5C662),
+              size: 16,
+            ),
+            Text(
+              "4.8(1494)",
+              style: TextStyle(
+                color: Colors.yellow[800],
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
         Text('Languages: ${user.languages}', softWrap: true),
       ],

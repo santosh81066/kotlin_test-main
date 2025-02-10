@@ -347,7 +347,15 @@ class _AddUserState extends State<AddUser> {
                                                                   .text
                                                                   .trim(),
                                                               context,
-                                                              ref);
+                                                              ref)
+                                                          .then((_) {
+                                                        // After successful registration, navigate back to home screen
+                                                        Navigator.of(context)
+                                                            .pushReplacementNamed(
+                                                                'wellcome');
+
+                                                        // Navigator.of(context).pop();
+                                                      });
                                                     }
                                                   },
                                                 )
