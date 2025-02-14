@@ -65,29 +65,6 @@ class _AddUserState extends State<AddUser> {
 
   @override
   Widget build(BuildContext context) {
-//     // var flutterFunctions = Provider.of<FlutterFunctions>(context);
-//     // var apicalls = Provider.of<ApiCalls>(context, listen: false);
-
-//     // List<List<TextEditingController>> prices = List.generate(
-//     //   apicalls.categorieModel!.data!.length,
-//     //   (mainindex) {
-//     //     var subcatCount =
-//     //         apicalls.categorieModel!.data![mainindex].subcat!.length;
-//     //     return List.generate(
-//     //       subcatCount + 1, // add one for the main category price
-//     //       (subindex) => TextEditingController(),
-//     //     );
-//     //   },
-//     // );
-
-//     // String? errorMessage =
-//     //     apicalls.validateForm(flattenedPrices, apicalls.selectedCatId);
-    // List<Data> filteredCategories =
-    //     apicalls.categorieModel!.data!.where((category) {
-    //   // return true if the category meets the filter condition, false otherwise
-    //   return category.cattype != "e"; // replace with your own filter condition
-    // }).toList();
-
     final formKey = GlobalKey<FormState>();
     return Scrollbar(
       thickness: 4,
