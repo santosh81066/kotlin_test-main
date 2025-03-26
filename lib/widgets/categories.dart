@@ -97,9 +97,17 @@ class Categories extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  "Purohithlu On Demand",
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                const Center(
+                  child: Text(
+                    "Purohithlu On Demand",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24, // Optional: make it a bit larger
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
                 Column(
                   children: [
@@ -127,146 +135,260 @@ class Categories extends ConsumerWidget {
             ),
           ),
           const SizedBox(
-            height: 20,
+            height: 25,
           ),
+          // Consumer(builder: (context, ref, child) {
+          //   var categories = ref.watch(categoryProvider);
+          //   return Container(
+          //     margin: const EdgeInsets.all(10),
+          //     child: Column(
+          //       mainAxisSize: MainAxisSize.min,
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         const Text("Categories",
+          //             style: TextStyle(fontWeight: FontWeight.w600)),
+          //         Consumer(builder: (context, ref, child) {
+          //           var categories = ref.watch(categoryProvider);
+          //           return Column(
+          //             children: [
+          //               // SizedBox(
+          //               //   height: 160,
+          //               //   child: ListView.builder(
+          //               //       scrollDirection: Axis.horizontal,
+          //               //       shrinkWrap: true,
+          //               //       itemCount: categories.categories.length,
+          //               //       itemBuilder: (context, index) {
+          //               //         return GestureDetector(
+          //               //           onTap: () {
+          //               //             if (categories.categories[index].cattype ==
+          //               //                 'e') {
+          //               //               Navigator.pushNamed(context, "events",
+          //               //                   arguments: {
+          //               //                     'id':
+          //               //                         categories.categories[index].id,
+          //               //                     'title': categories
+          //               //                         .categories[index].title,
+          //               //                     'price': categories
+          //               //                         .categories[index].price,
+          //               //                   });
+          //               //             } else {
+          //               //               Navigator.pushNamed(context, 'catscreen',
+          //               //                   arguments: {
+          //               //                     'cattype': categories
+          //               //                         .categories[index].cattype,
+          //               //                     'id':
+          //               //                         categories.categories[index].id,
+          //               //                     'cat name': categories
+          //               //                         .categories[index].title,
+          //               //                     'billingMode': categories
+          //               //                         .categories[index].billingMode,
+          //               //                   });
+          //               //             }
+          //               //           },
+          //               //           child: _buildCategoryCard(
+          //               //             categories.categories[index],
+          //               //             call[index],
+          //               //           ),
+          //               //         );
+          //               //       }),
+          //               // )
+          //               GridView.builder(
+          //                 shrinkWrap: true,
+          //                 physics: const NeverScrollableScrollPhysics(),
+          //                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //                   crossAxisCount: 2, // number of columns
+          //                   childAspectRatio: 1,
+          //                 ),
+          //                 itemCount: categories.categories.length,
+          //                 itemBuilder: (context, index) {
+          //                   return GestureDetector(
+          //                     onTap: () {
+          //                       if (categories.categories[index].cattype == 'e') {
+          //                         Navigator.pushNamed(context, "events", arguments: {
+          //                           'id': categories.categories[index].id,
+          //                           'title': categories.categories[index].title,
+          //                           'price': categories.categories[index].price,
+          //                         });
+          //                       } else {
+          //                         Navigator.pushNamed(context, 'catscreen', arguments: {
+          //                           'cattype': categories.categories[index].cattype,
+          //                           'id': categories.categories[index].id,
+          //                           'cat name': categories.categories[index].title,
+          //                           'billingMode': categories.categories[index].billingMode,
+          //                         });
+          //                       }
+          //                     },
+          //                     child: _buildCategoryCard(
+          //                       categories.categories[index],
+          //                       call[index],
+          //                     ),
+          //                   );
+          //                 },
+          //               )
+          //
+          //             ],
+          //           );
+          //         })
+          //       ],
+          //     ),
+          //   );
+          // }),
           Consumer(builder: (context, ref, child) {
             var categories = ref.watch(categoryProvider);
+
+            // Filter out "All-Poojas" and "Events"
+            final filteredCategories = categories.categories
+                .where((cat) => cat.title != "All-Poojas" && cat.title != "Events")
+                .toList();
+
             return Container(
               margin: const EdgeInsets.all(10),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Categories",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  Consumer(builder: (context, ref, child) {
-                    var categories = ref.watch(categoryProvider);
-                    return Column(
-                      children: [
-                        SizedBox(
-                          height: 160,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemCount: categories.categories.length,
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    if (categories.categories[index].cattype ==
-                                        'e') {
-                                      Navigator.pushNamed(context, "events",
-                                          arguments: {
-                                            'id':
-                                                categories.categories[index].id,
-                                            'title': categories
-                                                .categories[index].title,
-                                            'price': categories
-                                                .categories[index].price,
-                                          });
-                                    } else {
-                                      Navigator.pushNamed(context, 'catscreen',
-                                          arguments: {
-                                            'cattype': categories
-                                                .categories[index].cattype,
-                                            'id':
-                                                categories.categories[index].id,
-                                            'cat name': categories
-                                                .categories[index].title,
-                                            'billingMode': categories
-                                                .categories[index].billingMode,
-                                          });
-                                    }
-                                  },
-                                  child: _buildCategoryCard(
-                                    categories.categories[index],
-                                    call[index],
-                                  ),
-                                );
-                              }),
-                        )
-                      ],
-                    );
-                  })
+                  const Center(
+                    child: Text(
+                      "Categories",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24, // Optional: make it a bit larger
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 0.8,
+                    ),
+                    itemCount: filteredCategories.length,
+                    itemBuilder: (context, index) {
+                      final category = filteredCategories[index];
+                      final matchingCall = call.firstWhere(
+                            (c) => c.id == category.id,
+                        orElse: () => category, // fallback
+                      );
+
+                      return GestureDetector(
+                        onTap: () {
+                          if (category.cattype == 'e') {
+                            Navigator.pushNamed(context, "events", arguments: {
+                              'id': category.id,
+                              'title': category.title,
+                              'price': category.price,
+                            });
+                          } else {
+                            Navigator.pushNamed(context, 'catscreen', arguments: {
+                              'cattype': category.cattype,
+                              'id': category.id,
+                              'cat name': category.title,
+                              'billingMode': category.billingMode,
+                            });
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color.fromARGB(255, 96, 95, 95),
+                              width: 0.8,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.white,
+                          ),
+                          child: _buildCategoryCard(category, matchingCall),
+                        ),
+                      );
+                    },
+                  ),
+
                 ],
               ),
             );
           }),
+
           const SizedBox(
             height: 20,
           ),
           Consumer(builder: (context, ref, child) {
             return Container(
               margin: const EdgeInsets.all(10),
-              child: Column(
+              child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Trending Pooja's",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  Consumer(builder: (context, ref, child) {
-                    return Column(
-                      children: [
-                        SizedBox(
-                          height: 250,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemCount: subcategoriesTypeB.length,
-                              itemBuilder: (context, index) {
-                                final subcategory = subcategoriesTypeB[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, "subcatscreen",
-                                        arguments: {
-                                          'parentid': subcategory.parentid,
-                                          'id': subcategory.id,
-                                          'title': subcategory.title,
-                                          'cattype': subcategory.cattype,
-                                          'price': subcategory.price,
-                                        });
-                                  },
-                                  child: SizedBox(
-                                    width: 100,
-                                    child: Column(
-                                      children: [
-                                        Card(
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              side: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 96, 95, 95),
-                                                  width: 0.8)),
-                                          child: Container(
-                                            width: 100,
-                                            height: 130,
-                                            padding: const EdgeInsets.all(8),
-                                            child: AspectRatio(
-                                              aspectRatio: 1,
-                                              child: CircleAvatar(
-                                                backgroundColor: Colors.white,
-                                                backgroundImage: NetworkImage(
-                                                  "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${subcategory.id}",
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          subcategory.title!,
-                                          textAlign: TextAlign.center,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                        )
-                      ],
-                    );
-                  })
-                ],
+                // children: [
+                //   const Text("Trending Pooja's",
+                //       style: TextStyle(fontWeight: FontWeight.w600)),
+                //   Consumer(builder: (context, ref, child) {
+                //     return Column(
+                //       children: [
+                //         SizedBox(
+                //           height: 250,
+                //           child: ListView.builder(
+                //               scrollDirection: Axis.horizontal,
+                //               shrinkWrap: true,
+                //               itemCount: subcategoriesTypeB.length,
+                //               itemBuilder: (context, index) {
+                //                 final subcategory = subcategoriesTypeB[index];
+                //                 return GestureDetector(
+                //                   onTap: () {
+                //                     Navigator.pushNamed(context, "subcatscreen",
+                //                         arguments: {
+                //                           'parentid': subcategory.parentid,
+                //                           'id': subcategory.id,
+                //                           'title': subcategory.title,
+                //                           'cattype': subcategory.cattype,
+                //                           'price': subcategory.price,
+                //                         });
+                //                   },
+                //                   child: SizedBox(
+                //                     width: 100,
+                //                     child: Column(
+                //                       children: [
+                //                         Card(
+                //                           color: Colors.white,
+                //                           shape: RoundedRectangleBorder(
+                //                               borderRadius:
+                //                                   BorderRadius.circular(4),
+                //                               side: const BorderSide(
+                //                                   color: Color.fromARGB(
+                //                                       255, 96, 95, 95),
+                //                                   width: 0.8)),
+                //                           child: Container(
+                //                             width: 100,
+                //                             height: 130,
+                //                             padding: const EdgeInsets.all(8),
+                //                             child: AspectRatio(
+                //                               aspectRatio: 1,
+                //                               child: CircleAvatar(
+                //                                 backgroundColor: Colors.white,
+                //                                 backgroundImage: NetworkImage(
+                //                                   "${PurohitApi().baseUrl}${PurohitApi().getCatImage}${subcategory.id}",
+                //                                 ),
+                //                               ),
+                //                             ),
+                //                           ),
+                //                         ),
+                //                         Text(
+                //                           subcategory.title!,
+                //                           textAlign: TextAlign.center,
+                //                         )
+                //                       ],
+                //                     ),
+                //                   ),
+                //                 );
+                //               }),
+                //         )
+                //       ],
+                //     );
+                //   })
+                // ],
               ),
             );
           })
@@ -349,27 +471,52 @@ class Categories extends ConsumerWidget {
   _buildCategoryCard(Data categori, Data filteredCall) {
     return Column(
       children: [
+        // Card(
+        //   color: Colors.white,
+        //   shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(4),
+        //       side: const BorderSide(
+        //           color: Color.fromARGB(255, 96, 95, 95), width: 0.8)),
+        //   child: Container(
+        //     width: 100,
+        //     height: 130,
+        //     padding: const EdgeInsets.all(8),
+        //     child: CircleAvatar(
+        //       backgroundColor: Colors.white,
+        //       backgroundImage: categori.xfile != null
+        //           ? FileImage(File(categori.xfile!.path))
+        //           : const AssetImage('assets/placeholder.png')
+        //               as ImageProvider<Object>,
+        //     ),
+        //   ),
+        // ),
         Card(
-          color: Colors.white,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: const BorderSide(
-                  color: Color.fromARGB(255, 96, 95, 95), width: 0.8)),
+            borderRadius: BorderRadius.circular(4),
+          ),
           child: Container(
-            width: 100,
-            height: 130,
+            width: 490,
+            height: 190,
             padding: const EdgeInsets.all(8),
             child: CircleAvatar(
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
               backgroundImage: categori.xfile != null
                   ? FileImage(File(categori.xfile!.path))
                   : const AssetImage('assets/placeholder.png')
-                      as ImageProvider<Object>,
+              as ImageProvider<Object>,
             ),
           ),
         ),
+        const SizedBox(
+          height: 10,
+        ),
         Text(
           filteredCall.title ?? "",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 18, // Optional: make it a bit larger
+          ),
         )
       ],
     );

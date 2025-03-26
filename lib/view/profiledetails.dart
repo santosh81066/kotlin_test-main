@@ -116,6 +116,7 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
+    // var arguments = ModalRoute.of(context)!.settings.arguments as Map;
     var arguments = ModalRoute.of(context)!.settings.arguments as Map;
     print('profile details:${arguments['cattype']}');
     final user = arguments['user'] as Data;
@@ -125,9 +126,20 @@ class _ProfileDetailsState extends ConsumerState<ProfileDetails> {
         FirebaseDatabase.instance.ref().child('presence');
     final categoryNotifier = ref.read(categoryProvider.notifier);
     final categories = categoryNotifier.getFilteredCategories("e");
-    final category = categories.firstWhere(
-      (cat) => cat.id == int.parse(productId),
-    );
+    // final category = categories.firstWhere(
+    //   (cat) => cat.id == int.parse(productId),
+    // );
+    // final categoryIndex = categories.indexWhere((cat) => cat.id == int.parse(productId));
+    // print("$categoryIndex");
+    // if (categoryIndex == -1) {
+    //   return Scaffold(
+    //     appBar: purohithAppBar(context, 'Purohith Profile'),
+    //     body: const Center(child: Text('Category not found')),
+    //   );
+    //
+    // }
+    // final category = categories[categoryIndex];
+
     final firebaseUserId = FirebaseAuth.instance.currentUser?.uid;
     final DatabaseReference firebaseRealtimeWalletRef =
         FirebaseDatabase.instance.ref().child('wallet').child(firebaseUserId!);
