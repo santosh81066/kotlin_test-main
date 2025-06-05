@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-
 import '../providers/loader.dart';
 import '../providers/phoneauthnotifier.dart';
 import '/widgets/button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class Otp extends StatefulWidget {
   final GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey;
@@ -24,97 +23,125 @@ class _OtpState extends State<Otp> {
     double screenWidth = screenSize.width;
     double screenHeight = screenSize.height;
 
-    // Calculate width and height based on screen size
-    double imageWidth = screenSize.width * 0.5; // 50% of screen width
-    double imageHeight = screenSize.height * 0.25;
+    // Responsive sizing that works on web and mobile
+    double maxWidth = kIsWeb ? 600 : screenWidth * 0.95;
+    double imageSize = kIsWeb ? 150 : screenWidth * 0.4;
+    double horizontalPadding = kIsWeb ? 40 : 20;
+
     return Scaffold(
       appBar: AppBar(
-          leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_rounded,
-                color: Colors.black,
-              ),
-              onPressed: () {})),
-      body: SingleChildScrollView(
-          child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: screenSize.height * 0.95),
-        child: IntrinsicHeight(
-            child: Center(
-          child: SizedBox(
-            width: screenSize.width * 0.95,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Image.asset(
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+          ),
+          onPressed: () {},
+        ),
+      ),
+      body: Center(
+        child: Container(
+          width: maxWidth,
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Spacer to push content up slightly
+              const Spacer(flex: 1),
+
+              // Logo/Icon
+              Container(
+                width: imageSize,
+                height: imageSize,
+                child: Image.asset(
                   "assets/icon.png",
-                  width: imageWidth,
-                  height: imageHeight,
+                  fit: BoxFit.contain,
                 ),
-                Container(
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Enter Your Phone Number",
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w600),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Title and Input Section
+              Column(
+                children: [
+                  const Text(
+                    "Enter Your Phone Number",
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Phone Input
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: TextField(
+                      controller: phonecontroler,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        prefixText: "IN +91 ",
+                        labelText: "Phone number",
+                        hintText: "Enter your phone number",
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: TextField(
-                          controller: phonecontroler,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              prefixText: "IN +91",
-                              label: Text("IN +91 phone number")),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 40),
+
+              // Button Section
+              Consumer(
+                builder: (context, ref, child) {
+                  final isLoading = ref.watch(loadingProvider);
+
+                  return Column(
+                    children: [
+                      Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 400,
+                          minHeight: 50,
+                        ),
+                        width: double.infinity,
+                        child: isLoading
+                            ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                            : Button(
+                          width: double.infinity,
+                          buttonname: button,
+                          onTap: () {
+                            ref.read(phoneAuthProvider.notifier).phoneAuth(
+                              context,
+                              "+91${phonecontroler.text.trim()}",
+                              ref,
+                            );
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Consumer(
-                  builder: (context, value, child) {
-                    final isLoading = value.watch(loadingProvider);
-                    //print(value.isloading);
-                    return isLoading
-                        ? const CircularProgressIndicator()
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Button(
-                                width: double.infinity,
-                                buttonname: button,
-                                onTap: isLoading
-                                    ? null
-                                    : () {
-                                        //print(value.isloading);
-                                        value
-                                            .read(phoneAuthProvider.notifier)
-                                            .phoneAuth(
-                                                context,
-                                                "+91${phonecontroler.text}"
-                                                    .toString()
-                                                    .trim(),
-                                                value);
 
-                                        //print(value.isloading);
-                                      },
-                              ),
-                              Divider(
-                                thickness: screenSize.height * 0.006,
-                                indent: screenSize.width * 0.3,
-                                endIndent: screenSize.width * 0.3,
-                                color: Colors.black,
-                              )
-                            ],
-                          );
-                  },
-                ),
-              ],
-            ),
+                      const SizedBox(height: 20),
+
+                      // Divider
+                      Container(
+                        width: kIsWeb ? 200 : screenWidth * 0.4,
+                        height: 3,
+                        color: Colors.black,
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              // Bottom spacer
+              const Spacer(flex: 2),
+            ],
           ),
-        )),
-      )),
+        ),
+      ),
     );
   }
 }

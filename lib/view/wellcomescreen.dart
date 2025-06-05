@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/bottomnavigationnotifier.dart';
 import '../providers/carouselstatenotifier.dart';
 import '../providers/categorynotifier.dart';

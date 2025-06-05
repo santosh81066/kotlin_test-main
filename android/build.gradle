@@ -6,20 +6,38 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:8.6.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21"
         classpath 'com.google.gms:google-services:4.3.8'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
-
-
     }
 }
-
 
 allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+}
+
+// Force all subprojects to use Java 17
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+
+        // Force Kotlin to use JVM target 17
+        project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
     }
 }
 
